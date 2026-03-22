@@ -1,8 +1,14 @@
 from thefuzz import fuzz
 from thefuzz import process
 import csv
+import sys
+from datetime import date
 from pathlib import Path
 import logging
+
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+sys.stdout.reconfigure(line_buffering=True)
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +48,8 @@ class FuzzyMatcher:
             logger.error("Не удалось прочитать %s: %s", csv_file, e)
         return mapping
     
-    def match_hotels(self, ostrovok_map, tvil_map):
-        """Нечётко сопоставляет отели из двух словарей {адрес: название}.
+    def match_catalogs(self, ostrovok_map, tvil_map):
+        """Нечётко сопоставляет отели из двух каталогов {адрес: название}.
 
         Два прохода: по адресам (порог self.address_match_threshold) и по названиям (порог self.name_match_threshold).
         Возвращает список совпадений.
@@ -120,19 +126,27 @@ class FuzzyMatcher:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    base_dir = Path(__file__).parent
-    
+    base_dir = Path(__file__).resolve().parent
+    repo_root = base_dir.parent
+    ostrovok_catalog_dir = repo_root / "ostrovok-data" / "catalog"
+    tvil_catalog_dir = repo_root / "tvil-data" / "catalog"
+    match_results_dir = base_dir / "match-results"
+
     matcher = FuzzyMatcher()
-    ostrovok_csv = matcher.latest_csv_file(base_dir / "ostrovok-tables" / "hotels")
-    tvil_csv = matcher.latest_csv_file(base_dir / "tvil-tables" / "hotels")
+    ostrovok_csv = matcher.latest_csv_file(ostrovok_catalog_dir)
+    tvil_csv = matcher.latest_csv_file(tvil_catalog_dir)
+    
     if not ostrovok_csv:
-        logger.warning("CSV-файл Ostrovok не найден")
+        logger.warning("CSV каталога Ostrovok не найден в %s", ostrovok_catalog_dir)
     if not tvil_csv:
-        logger.warning("CSV-файл Tvil не найден")
+        logger.warning("CSV каталога Tvil не найден в %s", tvil_catalog_dir)
+
     ostrovok_map = matcher.load_address_name_map(ostrovok_csv) if ostrovok_csv else {}
     tvil_map = matcher.load_address_name_map(tvil_csv) if tvil_csv else {}
-    
-    results = matcher.match_hotels(ostrovok_map, tvil_map)
-    results.sort(key=lambda r: r['address_score'], reverse=True)
-    
-    matcher.save_results(results, base_dir / 'match_results.csv')
+
+    results = matcher.match_catalogs(ostrovok_map, tvil_map)
+    results.sort(key=lambda r: r["address_score"], reverse=True)
+
+    match_results_dir.mkdir(parents=True, exist_ok=True)
+    out_path = match_results_dir / f"{date.today().isoformat()}.csv"
+    matcher.save_results(results, out_path)

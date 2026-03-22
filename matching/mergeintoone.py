@@ -37,7 +37,7 @@ def _norm(s: Any) -> str:
     return ("" if s is None else str(s)).strip()
 
 
-def merge_hotels(
+def merge_catalogs(
     match_results_path: Path,
     ostrovok_hotels_path: Path,
     tvil_hotels_path: Path,
@@ -196,22 +196,29 @@ def merge_hotels(
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    base_dir = Path(__file__).parent
+    base_dir = Path(__file__).resolve().parent
+    repo_root = base_dir.parent
 
-    match_results = base_dir / "match_results.csv"
-    ostrovok_hotels = latest_csv_file(base_dir / "ostrovok-tables" / "hotels")
-    tvil_hotels = latest_csv_file(base_dir / "tvil-tables" / "hotels")
+    match_results_dir = base_dir / "match-results"
+    merge_results_dir = base_dir / "merge-results"
+    ostrovok_catalog_dir = repo_root / "ostrovok-data" / "catalog"
+    tvil_catalog_dir = repo_root / "tvil-data" / "catalog"
 
-    if not match_results.exists():
-        raise SystemExit(f"Не найден файл: {match_results}")
+    match_results = latest_csv_file(match_results_dir)
+    ostrovok_hotels = latest_csv_file(ostrovok_catalog_dir)
+    tvil_hotels = latest_csv_file(tvil_catalog_dir)
+
+    if not match_results:
+        raise SystemExit(f"Не найдены CSV в {match_results_dir} (сначала запустите fuzzy-matcher2.py)")
     if not ostrovok_hotels:
-        raise SystemExit("Не найдены CSV Ostrovok в ostrovok-tables/hotels")
+        raise SystemExit(f"Не найдены CSV Ostrovok в {ostrovok_catalog_dir}")
     if not tvil_hotels:
-        raise SystemExit("Не найдены CSV Tvil в tvil-tables/hotels")
+        raise SystemExit(f"Не найдены CSV Tvil в {tvil_catalog_dir}")
 
-    merge_hotels(
+    merge_results_dir.mkdir(parents=True, exist_ok=True)
+    merge_catalogs(
         match_results_path=match_results,
         ostrovok_hotels_path=ostrovok_hotels,
         tvil_hotels_path=tvil_hotels,
-        output_path=base_dir / "merged_hotels.csv",
+        output_path=merge_results_dir / "matched-catalog.csv",
     )
