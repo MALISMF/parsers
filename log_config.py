@@ -1,4 +1,4 @@
-"""Общая настройка логирования: консоль + файл (по желанию). Папка логов — logs в корне проекта.
+"""Общая настройка логирования: консоль + файл (по желанию). Папка логов — `matching/logs`.
 Telegram: при TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID ошибки уходят в Telegram,
 итог парсинга — через send_telegram_summary()."""
 import logging
@@ -11,13 +11,10 @@ try:
 except ImportError:
     requests = None
 
-# Папка логов в корне проекта (рядом с log_config.py)
-LOGS_DIR = Path(__file__).resolve().parent / "logs"
-TELEGRAM_MESSAGE_MAX_LENGTH = 4096
-
+LOGS_DIR = Path(__file__).resolve().parent / "matching" / "logs"
 
 def get_log_file_path(run_date):
-    """Путь к файлу лога за указанную дату: logs/YYYY-MM-DD.log в корне проекта."""
+    """Путь к файлу лога: matching/logs/YYYY-MM-DD.log"""
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
     return LOGS_DIR / f"{run_date}.log"
 

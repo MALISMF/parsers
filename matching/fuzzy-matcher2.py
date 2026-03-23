@@ -51,16 +51,35 @@ class FuzzyMatcher:
         except Exception as e:
             logger.error("Не удалось прочитать %s: %s", csv_file, e)
         return mapping
-    
+
+    def load_existing_matches(self, output_file):
+        """Загружает уже сохранённые матчи из единого файла.
+        Возвращает словарь {(ostrovok_address, tvil_address): row}.
+        """
+        existing = {}
+        if not output_file.exists():
+            return existing
+        try:
+            with open(output_file, newline="", encoding="utf-8-sig") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    key = (row.get("ostrovok_address", ""), row.get("tvil_address", ""))
+                    existing[key] = row
+            logger.info("Загружено существующих матчей: %d", len(existing))
+        except Exception as e:
+            logger.error("Не удалось прочитать существующие матчи из %s: %s", output_file, e)
+        return existing
+
     def match_catalogs(self, ostrovok_map, tvil_map):
         """Нечётко сопоставляет отели из двух каталогов {адрес: название}.
 
-        Два прохода: по адресам (порог self.address_match_threshold) и по названиям (порог self.name_match_threshold).
+        Два прохода: по адресам (порог self.address_match_threshold)
+        и по названиям (порог self.name_match_threshold).
         Возвращает список совпадений.
         """
-
         results = []
         matched_pairs = set()
+        matched_tvil_addresses = set()
         ostrovok_name_to_address = self._build_name_to_address_map(ostrovok_map)
         tvil_name_to_address = self._build_name_to_address_map(tvil_map)
 
@@ -88,6 +107,7 @@ class FuzzyMatcher:
                     'name_score': name_score,
                 })
                 matched_pairs.add((address, best_match))
+                matched_tvil_addresses.add(best_match)
 
         # 2. Проход по названиям: если порог по названию высокий — мэтчим (без дубликатов)
         ostrovok_names = list(ostrovok_map.values())
@@ -113,34 +133,77 @@ class FuzzyMatcher:
                     'name_score': name_score,
                 })
                 matched_pairs.add((ostrovok_address, tvil_address))
+                matched_tvil_addresses.add(tvil_address)
 
         return results
 
-    
+    def merge_with_existing(self, new_results, existing):
+        """Объединяет новые матчи с существующими.
+
+        Новые матчи (которых не было раньше) логируются.
+        Если матч уже есть — обновляем скоры (они могут чуть измениться при пересчёте).
+        Возвращает итоговый список всех матчей.
+        """
+        merged = dict(existing)  # копия: {(o_addr, t_addr): row}
+
+        for row in new_results:
+            key = (row.get("ostrovok_address", ""), row.get("tvil_address", ""))
+            if key not in merged:
+                logger.info(
+                    "Новый матч [%s]: '%s' ↔ '%s'  (addr_score=%s, name_score=%s)",
+                    row.get("match_type"),
+                    row.get("ostrovok_name"),
+                    row.get("tvil_name"),
+                    row.get("address_score"),
+                    row.get("name_score"),
+                )
+            merged[key] = row  # обновляем скоры в любом случае
+
+        removed = set(existing.keys()) - {
+            (r.get("ostrovok_address", ""), r.get("tvil_address", "")) for r in new_results
+        }
+        for key in removed:
+            logger.warning(
+                "Матч пропал из результатов: '%s' ↔ '%s'",
+                existing[key].get("ostrovok_name"),
+                existing[key].get("tvil_name"),
+            )
+
+        return list(merged.values())
+
     def save_results(self, results, output_file):
-        """Сохраняет результаты сопоставления в CSV-файл."""
-        fieldnames = ['ostrovok_address', 'tvil_address', 'address_score', 'ostrovok_name', 'tvil_name', 'name_score', 'match_type']
+        """Сохраняет все матчи в единый файл."""
+        fieldnames = ['ostrovok_address', 'tvil_address', 'address_score', 'ostrovok_name', 
+        'tvil_name', 'name_score', 'match_type']
         try:
+            output_file.parent.mkdir(parents=True, exist_ok=True)
             with open(output_file, 'w', encoding='utf-8-sig', newline='') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(results)
-            logger.info("Результаты сохранены в %s", output_file)
+            logger.info("Сохранено матчей: %d -> %s", len(results), output_file)
         except Exception as e:
             logger.error("Не удалось записать результаты в %s: %s", output_file, e)
 
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from log_config import setup_logging, get_log_file_path
+
+    run_date = date.today().isoformat()
+    log_file = get_log_file_path(run_date)
+    setup_logging(log_file=log_file)
+
     base_dir = Path(__file__).resolve().parent
     repo_root = base_dir.parent
     ostrovok_catalog_dir = repo_root / "ostrovok-data" / "catalog"
     tvil_catalog_dir = repo_root / "tvil-data" / "catalog"
-    match_results_dir = base_dir / "match-results"
+    output_file = base_dir / "match-results" / "matches.csv"
 
     matcher = FuzzyMatcher()
     ostrovok_csv = matcher.latest_csv_file(ostrovok_catalog_dir)
     tvil_csv = matcher.latest_csv_file(tvil_catalog_dir)
-    
+
     if not ostrovok_csv:
         logger.warning("CSV каталога Ostrovok не найден в %s", ostrovok_catalog_dir)
     if not tvil_csv:
@@ -149,9 +212,12 @@ if __name__ == "__main__":
     ostrovok_map = matcher.load_address_name_map(ostrovok_csv) if ostrovok_csv else {}
     tvil_map = matcher.load_address_name_map(tvil_csv) if tvil_csv else {}
 
-    results = matcher.match_catalogs(ostrovok_map, tvil_map)
-    results.sort(key=lambda r: r["address_score"], reverse=True)
+    existing = matcher.load_existing_matches(output_file)
 
-    match_results_dir.mkdir(parents=True, exist_ok=True)
-    out_path = match_results_dir / f"{date.today().isoformat()}.csv"
-    matcher.save_results(results, out_path)
+    new_results = matcher.match_catalogs(ostrovok_map, tvil_map)
+    new_results.sort(key=lambda r: r["address_score"], reverse=True)
+
+    final_results = matcher.merge_with_existing(new_results, existing)
+    final_results.sort(key=lambda r: r["address_score"], reverse=True)
+
+    matcher.save_results(final_results, output_file)
