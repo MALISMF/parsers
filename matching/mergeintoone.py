@@ -1,224 +1,203 @@
 import csv
 import logging
 from pathlib import Path
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
+class CatalogMerger:
+    def __init__(self):
+        # Определение полей для итогового CSV
+        self.fieldnames = [
+            "merged_id",
+            "match_type",
+            "address_score",
+            "name_score",
+            "city",
+            "name",
+            "address",
+            "rooms_number",
+            "ostrovok_ota_hotel_id",
+            "ostrovok_master_id",
+            "ostrovok_name",
+            "ostrovok_address",
+            "ostrovok_url",
+            "ostrovok_rooms_number",
+            "tvil_hotel_id",
+            "tvil_name",
+            "tvil_address",
+            "tvil_url",
+            "tvil_rooms_number",
+        ]
 
-def latest_csv_file(directory: Path) -> Path | None:
-    """Последний по имени CSV в директории (формат YYYY-MM-DD.csv)."""
-    if not directory.is_dir():
-        return None
-    files = sorted(directory.glob("*.csv"))
-    return files[-1] if files else None
+    def _norm(self, s):
+        """Вспомогательный метод для нормализации строк."""
+        return ("" if s is None else str(s)).strip()
 
+    def _read_csv_rows(self, path):
+        """Читает CSV и возвращает список словарей."""
+        try:
+            with open(path, newline="", encoding="utf-8-sig") as f:
+                return list(csv.DictReader(f))
+        except Exception as e:
+            logger.error("Ошибка при чтении файла %s: %s", path, e)
+            return []
 
-def _read_csv_rows(path: Path) -> list[dict[str, Any]]:
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        return list(csv.DictReader(f))
+    def _index_by_address(self, rows, address_col):
+        """Индексирует строки по адресу для быстрого поиска."""
+        out = {}
+        for row in rows:
+            addr = self._norm(row.get(address_col))
+            if not addr:
+                continue
+            out.setdefault(addr, row)
+        return out
 
+    def latest_csv_file(self, directory):
+        """Находит последний по имени CSV файл в директории."""
+        if not directory.is_dir():
+            return None
+        files = sorted(directory.glob("*.csv"))
+        return files[-1] if files else None
 
-def _index_by_address(rows: list[dict[str, Any]], address_col: str) -> dict[str, dict[str, Any]]:
-    """
-    Индексирует строки по адресу. Если адрес дублируется, берём первую встреченную строку.
-    Это удобно для Tvil, где иногда встречаются повторы.
-    """
-    out: dict[str, dict[str, Any]] = {}
-    for row in rows:
-        addr = (row.get(address_col) or "").strip()
-        if not addr:
-            continue
-        out.setdefault(addr, row)
-    return out
+    def merge(self, match_results_path, ostrovok_hotels_path, tvil_hotels_path):
+        """Основная логика объединения каталогов."""
+        matches = self._read_csv_rows(match_results_path)
+        ostrovok_rows = self._read_csv_rows(ostrovok_hotels_path)
+        tvil_rows = self._read_csv_rows(tvil_hotels_path)
 
+        ostrovok_by_address = self._index_by_address(ostrovok_rows, "address")
+        tvil_by_address = self._index_by_address(tvil_rows, "address")
 
-def _norm(s: Any) -> str:
-    return ("" if s is None else str(s)).strip()
+        matched_ostrovok_addresses = set()
+        matched_tvil_addresses = set()
+        out_rows = []
+        next_id = 1
 
+        # 1) Обработка совпадений (matched)
+        for m in matches:
+            o_addr = self._norm(m.get("ostrovok_address"))
+            t_addr = self._norm(m.get("tvil_address"))
+            
+            if o_addr: matched_ostrovok_addresses.add(o_addr)
+            if t_addr: matched_tvil_addresses.add(t_addr)
 
-def merge_catalogs(
-    match_results_path: Path,
-    ostrovok_hotels_path: Path,
-    tvil_hotels_path: Path,
-    output_path: Path,
-) -> None:
-    matches = _read_csv_rows(match_results_path)
-    ostrovok_rows = _read_csv_rows(ostrovok_hotels_path)
-    tvil_rows = _read_csv_rows(tvil_hotels_path)
+            o = ostrovok_by_address.get(o_addr, {})
+            t = tvil_by_address.get(t_addr, {})
 
-    ostrovok_by_address = _index_by_address(ostrovok_rows, "address")
-    tvil_by_address = _index_by_address(tvil_rows, "address")
+            out_rows.append({
+                "merged_id": next_id,
+                "match_type": self._norm(m.get("match_type")) or "matched",
+                "address_score": self._norm(m.get("address_score")),
+                "name_score": self._norm(m.get("name_score")),
+                "city": self._norm(o.get("city")) or self._norm(t.get("city")),
+                "name": self._norm(o.get("name")) or self._norm(m.get("ostrovok_name")) or self._norm(t.get("name")) or self._norm(m.get("tvil_name")),
+                "address": self._norm(o.get("address")) or o_addr or self._norm(t.get("address")) or t_addr,
+                "rooms_number": self._norm(o.get("rooms_number")) or self._norm(t.get("rooms_number")),
+                "ostrovok_ota_hotel_id": self._norm(o.get("ota_hotel_id")),
+                "ostrovok_master_id": self._norm(o.get("master_id")),
+                "ostrovok_name": self._norm(o.get("name")) or self._norm(m.get("ostrovok_name")),
+                "ostrovok_address": o_addr or self._norm(o.get("address")),
+                "ostrovok_url": self._norm(o.get("url")),
+                "ostrovok_rooms_number": self._norm(o.get("rooms_number")),
+                "tvil_hotel_id": self._norm(t.get("tvil_hotel_id")),
+                "tvil_name": self._norm(t.get("name")) or self._norm(m.get("tvil_name")),
+                "tvil_address": t_addr or self._norm(t.get("address")),
+                "tvil_url": self._norm(t.get("url")),
+                "tvil_rooms_number": self._norm(t.get("rooms_number")),
+            })
+            next_id += 1
 
-    matched_ostrovok_addresses: set[str] = set()
-    matched_tvil_addresses: set[str] = set()
-
-    out_rows: list[dict[str, Any]] = []
-    next_id = 1
-
-    def add_row(row: dict[str, Any]) -> None:
-        nonlocal next_id
-        row = dict(row)
-        row["merged_id"] = next_id
-        next_id += 1
-        out_rows.append(row)
-
-    # 1) Замэтченные пары -> одна строка
-    for m in matches:
-        o_addr = _norm(m.get("ostrovok_address"))
-        t_addr = _norm(m.get("tvil_address"))
-        matched_ostrovok_addresses.add(o_addr) if o_addr else None
-        matched_tvil_addresses.add(t_addr) if t_addr else None
-
-        o = ostrovok_by_address.get(o_addr, {})
-        t = tvil_by_address.get(t_addr, {})
-
-        add_row(
-            {
-                "match_type": _norm(m.get("match_type")) or "matched",
-                "address_score": _norm(m.get("address_score")),
-                "name_score": _norm(m.get("name_score")),
-                # Канонические поля (удобно для дальнейшей агрегации)
-                "city": _norm(o.get("city")) or _norm(t.get("city")),
-                "name": _norm(o.get("name")) or _norm(m.get("ostrovok_name")) or _norm(t.get("name")) or _norm(m.get("tvil_name")),
-                "address": _norm(o.get("address")) or o_addr or _norm(t.get("address")) or t_addr,
-                "rooms_number": _norm(o.get("rooms_number")) or _norm(t.get("rooms_number")),
-                # Ostrovok
-                "ostrovok_ota_hotel_id": _norm(o.get("ota_hotel_id")),
-                "ostrovok_master_id": _norm(o.get("master_id")),
-                "ostrovok_name": _norm(o.get("name")) or _norm(m.get("ostrovok_name")),
-                "ostrovok_address": o_addr or _norm(o.get("address")),
-                "ostrovok_url": _norm(o.get("url")),
-                "ostrovok_rooms_number": _norm(o.get("rooms_number")),
-                # Tvil
-                "tvil_hotel_id": _norm(t.get("tvil_hotel_id")),
-                "tvil_name": _norm(t.get("name")) or _norm(m.get("tvil_name")),
-                "tvil_address": t_addr or _norm(t.get("address")),
-                "tvil_url": _norm(t.get("url")),
-                "tvil_rooms_number": _norm(t.get("rooms_number")),
-            }
-        )
-
-    # 2) Не замэтченные из Ostrovok
-    for o in ostrovok_rows:
-        o_addr = _norm(o.get("address"))
-        if not o_addr or o_addr in matched_ostrovok_addresses:
-            continue
-        add_row(
-            {
+        # 2) Не замэтченные из Ostrovok
+        for o in ostrovok_rows:
+            o_addr = self._norm(o.get("address"))
+            if not o_addr or o_addr in matched_ostrovok_addresses:
+                continue
+            out_rows.append({
+                "merged_id": next_id,
                 "match_type": "unmatched_ostrovok",
-                "address_score": "",
-                "name_score": "",
-                "city": _norm(o.get("city")),
-                "name": _norm(o.get("name")),
+                "city": self._norm(o.get("city")),
+                "name": self._norm(o.get("name")),
                 "address": o_addr,
-                "rooms_number": _norm(o.get("rooms_number")),
-                "ostrovok_ota_hotel_id": _norm(o.get("ota_hotel_id")),
-                "ostrovok_master_id": _norm(o.get("master_id")),
-                "ostrovok_name": _norm(o.get("name")),
+                "rooms_number": self._norm(o.get("rooms_number")),
+                "ostrovok_ota_hotel_id": self._norm(o.get("ota_hotel_id")),
+                "ostrovok_master_id": self._norm(o.get("master_id")),
+                "ostrovok_name": self._norm(o.get("name")),
                 "ostrovok_address": o_addr,
-                "ostrovok_url": _norm(o.get("url")),
-                "ostrovok_rooms_number": _norm(o.get("rooms_number")),
-                "tvil_hotel_id": "",
-                "tvil_name": "",
-                "tvil_address": "",
-                "tvil_url": "",
-                "tvil_rooms_number": "",
-            }
-        )
+                "ostrovok_url": self._norm(o.get("url")),
+                "ostrovok_rooms_number": self._norm(o.get("rooms_number")),
+            })
+            next_id += 1
 
-    # 3) Не замэтченные из Tvil
-    for t in tvil_rows:
-        t_addr = _norm(t.get("address"))
-        if not t_addr or t_addr in matched_tvil_addresses:
-            continue
-        add_row(
-            {
+        # 3) Не замэтченные из Tvil
+        for t in tvil_rows:
+            t_addr = self._norm(t.get("address"))
+            if not t_addr or t_addr in matched_tvil_addresses:
+                continue
+            out_rows.append({
+                "merged_id": next_id,
                 "match_type": "unmatched_tvil",
-                "address_score": "",
-                "name_score": "",
-                "city": _norm(t.get("city")),
-                "name": _norm(t.get("name")),
+                "city": self._norm(t.get("city")),
+                "name": self._norm(t.get("name")),
                 "address": t_addr,
-                "rooms_number": _norm(t.get("rooms_number")),
-                "ostrovok_ota_hotel_id": "",
-                "ostrovok_master_id": "",
-                "ostrovok_name": "",
-                "ostrovok_address": "",
-                "ostrovok_url": "",
-                "ostrovok_rooms_number": "",
-                "tvil_hotel_id": _norm(t.get("tvil_hotel_id")),
-                "tvil_name": _norm(t.get("name")),
+                "rooms_number": self._norm(t.get("rooms_number")),
+                "tvil_hotel_id": self._norm(t.get("tvil_hotel_id")),
+                "tvil_name": self._norm(t.get("name")),
                 "tvil_address": t_addr,
-                "tvil_url": _norm(t.get("url")),
-                "tvil_rooms_number": _norm(t.get("rooms_number")),
-            }
-        )
+                "tvil_url": self._norm(t.get("url")),
+                "tvil_rooms_number": self._norm(t.get("rooms_number")),
+            })
+            next_id += 1
 
-    # Стабильный порядок: matched сначала, потом unmatched (как добавляли)
-    fieldnames = [
-        "merged_id",
-        "match_type",
-        "address_score",
-        "name_score",
-        "city",
-        "name",
-        "address",
-        "rooms_number",
-        "ostrovok_ota_hotel_id",
-        "ostrovok_master_id",
-        "ostrovok_name",
-        "ostrovok_address",
-        "ostrovok_url",
-        "ostrovok_rooms_number",
-        "tvil_hotel_id",
-        "tvil_name",
-        "tvil_address",
-        "tvil_url",
-        "tvil_rooms_number",
-    ]
+        return out_rows
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
-        w.writeheader()
-        w.writerows(out_rows)
-
-    logger.info(
-        "Готово: %s строк (matched=%s, unmatched_ostrovok=%s, unmatched_tvil=%s) -> %s",
-        len(out_rows),
-        sum(1 for r in out_rows if r.get("match_type") not in ("unmatched_ostrovok", "unmatched_tvil")),
-        sum(1 for r in out_rows if r.get("match_type") == "unmatched_ostrovok"),
-        sum(1 for r in out_rows if r.get("match_type") == "unmatched_tvil"),
-        output_path,
-    )
+    def save_results(self, rows, output_path):
+        """Записывает итоговый список строк в файл."""
+        try:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, "w", encoding="utf-8-sig", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=self.fieldnames, extrasaction="ignore")
+                w.writeheader()
+                w.writerows(rows)
+            
+            logger.info(
+                "Результат сохранен в %s. Всего строк: %d (matched: %d, unmatched_ostrovok: %d, unmatched_tvil: %d)",
+                output_path,
+                len(rows),
+                sum(1 for r in rows if r.get("match_type") not in ("unmatched_ostrovok", "unmatched_tvil")),
+                sum(1 for r in rows if r.get("match_type") == "unmatched_ostrovok"),
+                sum(1 for r in rows if r.get("match_type") == "unmatched_tvil")
+            )
+        except Exception as e:
+            logger.error("Не удалось сохранить результаты в %s: %s", output_path, e)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    
     base_dir = Path(__file__).resolve().parent
     repo_root = base_dir.parent
 
+    # Пути к данным
     match_results_dir = base_dir / "match-results"
     merge_results_dir = base_dir / "merge-results"
     ostrovok_catalog_dir = repo_root / "ostrovok-data" / "catalog"
     tvil_catalog_dir = repo_root / "tvil-data" / "catalog"
 
-    match_results = latest_csv_file(match_results_dir)
-    ostrovok_hotels = latest_csv_file(ostrovok_catalog_dir)
-    tvil_hotels = latest_csv_file(tvil_catalog_dir)
+    merger = CatalogMerger()
 
-    if not match_results:
-        raise SystemExit(f"Не найдены CSV в {match_results_dir} (сначала запустите fuzzy-matcher2.py)")
-    if not ostrovok_hotels:
-        raise SystemExit(f"Не найдены CSV Ostrovok в {ostrovok_catalog_dir}")
-    if not tvil_hotels:
-        raise SystemExit(f"Не найдены CSV Tvil в {tvil_catalog_dir}")
+    # Поиск файлов
+    match_results = match_results_dir / "matches.csv"
+    ostrovok_hotels = merger.latest_csv_file(ostrovok_catalog_dir)
+    tvil_hotels = merger.latest_csv_file(tvil_catalog_dir)
 
-    merge_results_dir.mkdir(parents=True, exist_ok=True)
-    merge_catalogs(
-        match_results_path=match_results,
-        ostrovok_hotels_path=ostrovok_hotels,
-        tvil_hotels_path=tvil_hotels,
-        output_path=merge_results_dir / "matched-catalog.csv",
-    )
+    # Проверки
+    if not match_results.is_file():
+        logger.error("Нет файла %s — сначала запустите fuzzy-matcher2.py", match_results)
+        exit(1)
+    if not ostrovok_hotels or not tvil_hotels:
+        logger.error("Не найдены необходимые CSV каталоги.")
+        exit(1)
+
+    # Выполнение
+    final_rows = merger.merge(match_results, ostrovok_hotels, tvil_hotels)
+    merger.save_results(final_rows, merge_results_dir / "matched-catalog.csv")
