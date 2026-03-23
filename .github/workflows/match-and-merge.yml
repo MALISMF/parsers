@@ -1,0 +1,53 @@
+name: Match and Merge Catalogs
+
+on:
+  # Запускаем после того, как обновляются данные (например, по расписанию чуть позже парсеров)
+  # Или вручную
+  workflow_dispatch:
+  # Можно настроить запуск сразу после пуша в папки с данными
+  push:
+    paths:
+      - 'ostrovok-data/catalog/*.csv'
+      - 'tvil-data/catalog/*.csv'
+
+jobs:
+  merge-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install thefuzz python-Levenshtein
+
+      - name: Run Fuzzy Matcher
+        run: |
+          python matching/fuzzy-matcher2.py
+
+      - name: Run Catalog Merger
+        run: |
+          python matching/mergeintoone.py
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Commit and push merged catalog
+        run: |
+          # Добавляем результаты матчинга, мержинга и логи
+          git add match-results/ merge-results/ logs/
+          if git diff --staged --quiet; then
+            echo "No changes in merged catalog"
+          else
+            git commit -m "Update merged catalog - $(date +'%Y-%m-%d %H:%M')"
+            git push
+          fi
