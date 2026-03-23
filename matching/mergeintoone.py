@@ -1,5 +1,7 @@
 import csv
 import logging
+import sys
+from datetime import date
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,9 @@ class CatalogMerger:
         """Читает CSV и возвращает список словарей."""
         try:
             with open(path, newline="", encoding="utf-8-sig") as f:
-                return list(csv.DictReader(f))
+                rows = list(csv.DictReader(f))
+                logger.info("Файл прочитан: %s (строк: %d)", path.name, len(rows))
+                return rows
         except Exception as e:
             logger.error("Ошибка при чтении файла %s: %s", path, e)
             return []
@@ -61,6 +65,8 @@ class CatalogMerger:
 
     def merge(self, match_results_path, ostrovok_hotels_path, tvil_hotels_path):
         """Основная логика объединения каталогов."""
+        logger.info("Начало процесса слияния каталогов...")
+        
         matches = self._read_csv_rows(match_results_path)
         ostrovok_rows = self._read_csv_rows(ostrovok_hotels_path)
         tvil_rows = self._read_csv_rows(tvil_hotels_path)
@@ -74,6 +80,7 @@ class CatalogMerger:
         next_id = 1
 
         # 1) Обработка совпадений (matched)
+        logger.info("Обработка найденных совпадений из %s", match_results_path.name)
         for m in matches:
             o_addr = self._norm(m.get("ostrovok_address"))
             t_addr = self._norm(m.get("tvil_address"))
@@ -159,21 +166,27 @@ class CatalogMerger:
                 w.writeheader()
                 w.writerows(rows)
             
-            logger.info(
-                "Результат сохранен в %s. Всего строк: %d (matched: %d, unmatched_ostrovok: %d, unmatched_tvil: %d)",
-                output_path,
-                len(rows),
-                sum(1 for r in rows if r.get("match_type") not in ("unmatched_ostrovok", "unmatched_tvil")),
-                sum(1 for r in rows if r.get("match_type") == "unmatched_ostrovok"),
-                sum(1 for r in rows if r.get("match_type") == "unmatched_tvil")
-            )
+            logger.info("--- ИТОГО ---")
+            logger.info("Всего строк в каталоге: %d", len(rows))
+            logger.info("Совпадений (matched): %d", sum(1 for r in rows if r.get("match_type") not in ("unmatched_ostrovok", "unmatched_tvil")))
+            logger.info("Только Ostrovok: %d", sum(1 for r in rows if r.get("match_type") == "unmatched_ostrovok"))
+            logger.info("Только Tvil: %d", sum(1 for r in rows if r.get("match_type") == "unmatched_tvil"))
+            logger.info("Результат сохранен в: %s", output_path)
         except Exception as e:
             logger.error("Не удалось сохранить результаты в %s: %s", output_path, e)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
-    
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    try:
+        from log_config import setup_logging, get_log_file_path
+        run_date = date.today().isoformat()
+        log_file = get_log_file_path(run_date)
+        setup_logging(log_file=log_file)
+    except ImportError:
+        logging.basicConfig(level=logging.INFO, format="%(message)s")
+        logger.warning("Модуль log_config не найден, логирование в файл отключено.")
+
     base_dir = Path(__file__).resolve().parent
     repo_root = base_dir.parent
 
@@ -193,10 +206,10 @@ if __name__ == "__main__":
     # Проверки
     if not match_results.is_file():
         logger.error("Нет файла %s — сначала запустите fuzzy-matcher2.py", match_results)
-        exit(1)
+        sys.exit(1)
     if not ostrovok_hotels or not tvil_hotels:
-        logger.error("Не найдены необходимые CSV каталоги.")
-        exit(1)
+        logger.error("Не найдены необходимые CSV каталоги в %s или %s", ostrovok_catalog_dir, tvil_catalog_dir)
+        sys.exit(1)
 
     # Выполнение
     final_rows = merger.merge(match_results, ostrovok_hotels, tvil_hotels)
