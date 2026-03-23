@@ -25,6 +25,10 @@ class FuzzyMatcher:
         self.name_scorer = fuzz.token_sort_ratio
         self.address_scorer = fuzz.token_set_ratio
 
+    def _build_name_to_address_map(self, address_to_name):
+        """Строит словарь {название: адрес} для обратного поиска."""
+        return {name: address for address, name in address_to_name.items() if name}
+
 
     def latest_csv_file(self, directory):
         """Последний по дате CSV в директории (формат YYYY-MM-DD.csv)."""
@@ -57,6 +61,8 @@ class FuzzyMatcher:
 
         results = []
         matched_pairs = set()
+        ostrovok_name_to_address = self._build_name_to_address_map(ostrovok_map)
+        tvil_name_to_address = self._build_name_to_address_map(tvil_map)
 
         # 1. Проход по адресам: если порог по адресу >= 98 — мэтчим
         ostrovok_addresses = list(ostrovok_map.keys())
@@ -73,39 +79,38 @@ class FuzzyMatcher:
 
             if address_score >= self.address_match_threshold:
                 results.append({
+                    'match_type': 'address',
                     'ostrovok_address': address,
                     'tvil_address': best_match,
                     'address_score': address_score,
                     'ostrovok_name': ostrovok_name,
                     'tvil_name': tvil_name,
                     'name_score': name_score,
-                    'match_type': 'address',
                 })
                 matched_pairs.add((address, best_match))
 
         # 2. Проход по названиям: если порог по названию высокий — мэтчим (без дубликатов)
         ostrovok_names = list(ostrovok_map.values())
         tvil_names = list(tvil_map.values())
-        for ostrovok_address, ostrovok_name in ostrovok_map.items():
+        for ostrovok_name in ostrovok_names:
             best_name_match, name_score = process.extractOne(
                 ostrovok_name,
                 tvil_names,
                 scorer=self.name_scorer,
             )
-            tvil_address = None
-            for addr, name in tvil_map.items():
-                if name == best_name_match:
-                    tvil_address = addr
-                    break
+            ostrovok_address = ostrovok_name_to_address.get(ostrovok_name, "")
+            tvil_address = tvil_name_to_address.get(best_name_match, "")
+            address_score = fuzz.token_set_ratio(ostrovok_address, tvil_address) if tvil_address else None
+
             if name_score is not None and name_score >= self.name_match_threshold and (ostrovok_address, tvil_address) not in matched_pairs:
                 results.append({
+                    'match_type': 'name',
                     'ostrovok_address': ostrovok_address,
                     'tvil_address': tvil_address,
-                    'address_score': fuzz.token_set_ratio(ostrovok_address, tvil_address) if tvil_address else None,
+                    'address_score': address_score,
                     'ostrovok_name': ostrovok_name,
                     'tvil_name': best_name_match,
                     'name_score': name_score,
-                    'match_type': 'name',
                 })
                 matched_pairs.add((ostrovok_address, tvil_address))
 
