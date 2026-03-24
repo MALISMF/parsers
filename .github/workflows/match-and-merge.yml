@@ -30,11 +30,11 @@ jobs:
 
       - name: Run Fuzzy Matcher
         run: |
-          python matching/fuzzy-matcher2.py
+          python -u matching/fuzzy-matcher2.py
 
       - name: Run Catalog Merger
         run: |
-          python matching/mergeintoone.py
+          python -u matching/mergeintoone.py
 
       - name: Configure Git
         run: |
