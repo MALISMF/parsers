@@ -11,3 +11,16 @@
 2026-03-26 08:54:02 [INFO] __main__: Только Ostrovok: 142
 2026-03-26 08:54:02 [INFO] __main__: Только Tvil: 25
 2026-03-26 08:54:02 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/matching/merge-results/matched-catalog.csv
+2026-03-26 09:41:45 [INFO] __main__: Загружено существующих матчей: 44
+2026-03-26 09:41:45 [INFO] __main__: Сохранено матчей: 44 -> /home/runner/work/parsers/parsers/matching/match-results/matches.csv
+2026-03-26 09:41:45 [INFO] __main__: Начало процесса слияния каталогов...
+2026-03-26 09:41:45 [INFO] __main__: Файл прочитан: matches.csv (строк: 44)
+2026-03-26 09:41:45 [INFO] __main__: Файл прочитан: hotels.csv (строк: 186)
+2026-03-26 09:41:45 [INFO] __main__: Файл прочитан: hotels.csv (строк: 69)
+2026-03-26 09:41:45 [INFO] __main__: Обработка найденных совпадений из matches.csv
+2026-03-26 09:41:45 [INFO] __main__: --- ИТОГО ---
+2026-03-26 09:41:45 [INFO] __main__: Всего строк в каталоге: 211
+2026-03-26 09:41:45 [INFO] __main__: Совпадений (matched): 44
+2026-03-26 09:41:45 [INFO] __main__: Только Ostrovok: 142
+2026-03-26 09:41:45 [INFO] __main__: Только Tvil: 25
+2026-03-26 09:41:45 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/matching/merge-results/matched-catalog.csv
