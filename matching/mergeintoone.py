@@ -4,64 +4,35 @@ import sys
 from datetime import date
 from pathlib import Path
 
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+sys.stdout.reconfigure(line_buffering=True)
+
 logger = logging.getLogger(__name__)
 
 class CatalogMerger:
-    def __init__(self):
-        # Определение полей для итогового CSV
-        self.fieldnames = [
-            "merged_id",
-            "match_type",
-            "address_score",
-            "name_score",
-            "city",
-            "name",
-            "address",
-            "rooms_number",
-            "ostrovok_ota_hotel_id",
-            "ostrovok_master_id",
-            "ostrovok_name",
-            "ostrovok_address",
-            "ostrovok_url",
-            "ostrovok_rooms_number",
-            "tvil_hotel_id",
-            "tvil_name",
-            "tvil_address",
-            "tvil_url",
-            "tvil_rooms_number",
-        ]
+    def run(self, match_results_path, ostrovok_dir, tvil_dir, output_path):
+        """Входная точка: координирует поиск файлов, слияние и сохранение."""
+        
+        # 1. Поиск необходимых файлов
+        ostrovok_hotels = self.latest_csv_file(ostrovok_dir)
+        tvil_hotels = self.latest_csv_file(tvil_dir)
 
-    def _norm(self, s):
-        """Вспомогательный метод для нормализации строк."""
-        return ("" if s is None else str(s)).strip()
+        # 2. Проверки наличия файлов
+        if not match_results_path.is_file():
+            logger.error("Нет файла %s — сначала запустите fuzzy-matcher2.py", match_results_path)
+            return
+        
+        if not ostrovok_hotels or not tvil_hotels:
+            logger.error("Не найдены необходимые CSV каталоги в %s или %s", ostrovok_dir, tvil_dir)
+            return
 
-    def _read_csv_rows(self, path):
-        """Читает CSV и возвращает список словарей."""
-        try:
-            with open(path, newline="", encoding="utf-8-sig") as f:
-                rows = list(csv.DictReader(f))
-                logger.info("Файл прочитан: %s (строк: %d)", path.name, len(rows))
-                return rows
-        except Exception as e:
-            logger.error("Ошибка при чтении файла %s: %s", path, e)
-            return []
-
-    def _index_by_address(self, rows, address_col):
-        """Индексирует строки по адресу для быстрого поиска."""
-        out = {}
-        for row in rows:
-            addr = self._norm(row.get(address_col))
-            if not addr:
-                continue
-            out.setdefault(addr, row)
-        return out
-
-    def latest_csv_file(self, directory):
-        """Находит последний по имени CSV файл в директории."""
-        if not directory.is_dir():
-            return None
-        files = sorted(directory.glob("*.csv"))
-        return files[-1] if files else None
+        # 3. Выполнение слияния
+        final_rows = self.merge(match_results_path, ostrovok_hotels, tvil_hotels)
+        
+        # 4. Сохранение результата
+        if final_rows:
+            self.save_results(final_rows, output_path)
 
     def merge(self, match_results_path, ostrovok_hotels_path, tvil_hotels_path):
         """Основная логика объединения каталогов."""
@@ -158,11 +129,20 @@ class CatalogMerger:
         return out_rows
 
     def save_results(self, rows, output_path):
-        """Записывает итоговый список строк в файл."""
+        """Записывает итоговый список строк в файл и выводит статистику."""
+        fieldnames = [
+            "merged_id", "match_type", "address_score", "name_score",
+            "city", "name", "address", "rooms_number",
+            "ostrovok_ota_hotel_id", "ostrovok_master_id", "ostrovok_name",
+            "ostrovok_address", "ostrovok_url", "ostrovok_rooms_number",
+            "tvil_hotel_id", "tvil_name", "tvil_address",
+            "tvil_url", "tvil_rooms_number",
+        ]
+        
         try:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             with open(output_path, "w", encoding="utf-8-sig", newline="") as f:
-                w = csv.DictWriter(f, fieldnames=self.fieldnames, extrasaction="ignore")
+                w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
                 w.writeheader()
                 w.writerows(rows)
             
@@ -175,14 +155,47 @@ class CatalogMerger:
         except Exception as e:
             logger.error("Не удалось сохранить результаты в %s: %s", output_path, e)
 
+    def latest_csv_file(self, directory):
+        """Находит последний по имени CSV файл в директории."""
+        if not directory.is_dir():
+            return None
+        files = sorted(directory.glob("*.csv"))
+        return files[-1] if files else None
+
+    # --- Приватные утилиты ---
+
+    def _norm(self, s):
+        """Вспомогательный метод для нормализации строк."""
+        return ("" if s is None else str(s)).strip()
+
+    def _read_csv_rows(self, path):
+        """Читает CSV и возвращает список словарей."""
+        try:
+            with open(path, newline="", encoding="utf-8-sig") as f:
+                rows = list(csv.DictReader(f))
+                logger.info("Файл прочитан: %s (строк: %d)", path.name, len(rows))
+                return rows
+        except Exception as e:
+            logger.error("Ошибка при чтении файла %s: %s", path, e)
+            return []
+
+    def _index_by_address(self, rows, address_col):
+        """Индексирует строки по адресу для быстрого поиска."""
+        out = {}
+        for row in rows:
+            addr = self._norm(row.get(address_col))
+            if not addr:
+                continue
+            out.setdefault(addr, row)
+        return out
+
 
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     try:
         from log_config import setup_logging, get_log_file_path
         run_date = date.today().isoformat()
-        log_file = get_log_file_path(run_date)
-        setup_logging(log_file=log_file)
+        setup_logging(log_file=get_log_file_path(run_date))
     except ImportError:
         logging.basicConfig(level=logging.INFO, format="%(message)s")
         logger.warning("Модуль log_config не найден, логирование в файл отключено.")
@@ -190,27 +203,10 @@ if __name__ == "__main__":
     base_dir = Path(__file__).resolve().parent
     repo_root = base_dir.parent
 
-    # Пути к данным
-    match_results_dir = base_dir / "match-results"
-    merge_results_dir = base_dir / "merge-results"
-    ostrovok_catalog_dir = repo_root / "ostrovok-data" / "catalog"
-    tvil_catalog_dir = repo_root / "tvil-data" / "catalog"
+    match_results = base_dir / "match-results" / "matches.csv"
+    ostrovok_dir = repo_root / "ostrovok-data" / "catalog"
+    tvil_dir = repo_root / "tvil-data" / "catalog"
+    output_file = base_dir / "merge-results" / "matched-catalog.csv"
 
     merger = CatalogMerger()
-
-    # Поиск файлов
-    match_results = match_results_dir / "matches.csv"
-    ostrovok_hotels = merger.latest_csv_file(ostrovok_catalog_dir)
-    tvil_hotels = merger.latest_csv_file(tvil_catalog_dir)
-
-    # Проверки
-    if not match_results.is_file():
-        logger.error("Нет файла %s — сначала запустите fuzzy-matcher2.py", match_results)
-        sys.exit(1)
-    if not ostrovok_hotels or not tvil_hotels:
-        logger.error("Не найдены необходимые CSV каталоги в %s или %s", ostrovok_catalog_dir, tvil_catalog_dir)
-        sys.exit(1)
-
-    # Выполнение
-    final_rows = merger.merge(match_results, ostrovok_hotels, tvil_hotels)
-    merger.save_results(final_rows, merge_results_dir / "matched-catalog.csv")
+    merger.run(match_results, ostrovok_dir, tvil_dir, output_file)
