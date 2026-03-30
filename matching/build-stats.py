@@ -116,8 +116,8 @@ class DailyStatsMerger:
                 "address": address,
                 "ostrovok_free_rooms": int(o_free_rooms) if o_free_rooms is not None else "",
                 "tvil_free_rooms": int(t_free_rooms) if t_free_rooms is not None else "",
-                "avg_free_rooms": self._avg_of(o_free_rooms, t_free_rooms),
                 "min_free_rooms": self._min_of(o_free_rooms, t_free_rooms),
+                "avg_free_rooms": self._avg_of(o_free_rooms, t_free_rooms),
                 "max_free_rooms": self._max_of(o_free_rooms, t_free_rooms),
                 "occupancy_percent": occupancy_pct,
                 "ostrovok_capacity": int(o_capacity) if o_capacity is not None else "",
@@ -131,7 +131,7 @@ class DailyStatsMerger:
         fieldnames = [
             "merged_id", "city", "name", "address",
             "ostrovok_free_rooms", "tvil_free_rooms",
-            "avg_free_rooms", "min_free_rooms", "max_free_rooms",
+            "min_free_rooms", "avg_free_rooms", "max_free_rooms",
             "occupancy_percent",
             "ostrovok_capacity", "tvil_capacity",
         ]
