@@ -22,6 +22,15 @@ if sys.stdout.encoding != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8")
 sys.stdout.reconfigure(line_buffering=True)
 
+def _extract_date_from_path(p: Path):
+    if not p:
+        return None
+    try:
+        datetime.strptime(p.stem, "%Y-%m-%d")
+        return p.stem
+    except Exception:
+        return None
+
 logger = logging.getLogger(__name__)
 
 def _run_date():
@@ -101,19 +110,25 @@ class DailyStatsMerger:
 
             o_capacity = self._to_float(o_stat.get("max_capacity"))
             t_capacity = self._to_float(t_stat.get("max_capacity"))
+            o_rooms_num = self._to_float(cat.get("ostrovok_rooms_number"))
+            t_rooms_num = self._to_float(cat.get("tvil_rooms_number"))
             o_free_rooms = self._to_float(o_stat.get("free_rooms_amount"))
             t_free_rooms = self._to_float(t_stat.get("free_rooms_amount"))
             o_avail_pct = self._to_float(o_stat.get("available_rooms_percent"))
             t_avail_pct = self._to_float(t_stat.get("available_rooms_percent"))
 
-            # occupancy_percent — среднее доступности по источникам, что есть
-            occupancy_pct = self._avg_of(o_avail_pct, t_avail_pct)
+            # available_rooms_percent — доля свободных номеров; загрузка = 100 − free%
+            o_occ_pct = (100.0 - o_avail_pct) if o_avail_pct is not None else None
+            t_occ_pct = (100.0 - t_avail_pct) if t_avail_pct is not None else None
+            occupancy_pct = self._avg_of(o_occ_pct, t_occ_pct)
 
             output_rows.append({
                 "merged_id": merged_id,
                 "city": city,
                 "name": name,
                 "address": address,
+                "ostrovok_rooms_number": int(o_rooms_num) if o_rooms_num is not None else "",
+                "tvil_rooms_number": int(t_rooms_num) if t_rooms_num is not None else "",
                 "ostrovok_free_rooms": int(o_free_rooms) if o_free_rooms is not None else "",
                 "tvil_free_rooms": int(t_free_rooms) if t_free_rooms is not None else "",
                 "min_free_rooms": self._min_of(o_free_rooms, t_free_rooms),
@@ -122,6 +137,7 @@ class DailyStatsMerger:
                 "occupancy_percent": occupancy_pct,
                 "ostrovok_capacity": int(o_capacity) if o_capacity is not None else "",
                 "tvil_capacity": int(t_capacity) if t_capacity is not None else "",
+                "avg_capacity": self._avg_of(o_capacity, t_capacity),
             })
 
         return output_rows
@@ -130,10 +146,11 @@ class DailyStatsMerger:
         """Записывает итоговый список строк в файл и выводит статистику."""
         fieldnames = [
             "merged_id", "city", "name", "address",
+            "ostrovok_rooms_number", "tvil_rooms_number",
             "ostrovok_free_rooms", "tvil_free_rooms",
             "min_free_rooms", "avg_free_rooms", "max_free_rooms",
             "occupancy_percent",
-            "ostrovok_capacity", "tvil_capacity",
+            "ostrovok_capacity", "tvil_capacity", "avg_capacity",
         ]
         
         try:
@@ -217,9 +234,18 @@ if __name__ == "__main__":
 
     catalog_path = base_dir / "merge-results" / "matched-catalog.csv"
     o_stats_dir = repo_root / "ostrovok-data" / "daily" / "statistics"
-    t_stats_dir = repo_root / "tvil-data"     / "daily" / "statistics"
-    
-    output_file = repo_root / "all-data" / f"{run_date.isoformat()}.csv"
+    t_stats_dir = repo_root / "tvil-data" / "daily" / "statistics"
 
     merger = DailyStatsMerger()
+
+    ostrovok_stats_path = merger.latest_csv_file(o_stats_dir)
+    tvil_stats_path = merger.latest_csv_file(t_stats_dir)
+
+    o_stat_date = _extract_date_from_path(ostrovok_stats_path)
+    t_stat_date = _extract_date_from_path(tvil_stats_path)
+
+
+    output_date = o_stat_date or t_stat_date or run_date.isoformat()
+    output_file = repo_root / "all-data" / f"{output_date}.csv"
+
     merger.run(catalog_path, o_stats_dir, t_stats_dir, output_file)
