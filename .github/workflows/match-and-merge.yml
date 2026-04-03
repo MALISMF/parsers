@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'ostrovok-data/catalog/*.csv'
       - 'tvil-data/catalog/*.csv'
 
 jobs:
