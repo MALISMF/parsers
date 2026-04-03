@@ -76,3 +76,42 @@
 2026-04-03 13:52:05 [INFO] __main__: Только Ostrovok: 134
 2026-04-03 13:52:05 [INFO] __main__: Только Tvil: 20
 2026-04-03 13:52:05 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/all-data/2026-04-03.csv
+2026-04-03 22:04:11 [INFO] __main__: Используемый каталог: C:\Users\matve\Desktop\parsers\matching\merge-results\matched-catalog.csv
+2026-04-03 22:04:11 [INFO] __main__: Статистика Ostrovok: C:\Users\matve\Desktop\parsers\ostrovok-data\daily\statistics\2026-04-03.csv
+2026-04-03 22:04:11 [INFO] __main__: Статистика Tvil: C:\Users\matve\Desktop\parsers\tvil-data\daily\statistics\2026-04-03.csv
+2026-04-03 22:04:11 [INFO] __main__: Начало процесса объединения ежедневной статистики...
+2026-04-03 22:04:11 [INFO] __main__: Файл прочитан: matched-catalog.csv (строк: 219)
+2026-04-03 22:04:11 [INFO] __main__: Файл прочитан: 2026-04-03.csv (строк: 171)
+2026-04-03 22:04:11 [INFO] __main__: Файл прочитан: 2026-04-03.csv (строк: 57)
+2026-04-03 22:04:11 [INFO] __main__: --- ИТОГО СТАТИСТИКА ---
+2026-04-03 22:04:11 [INFO] __main__: Всего строк сохранено: 219
+2026-04-03 22:04:11 [INFO] __main__: Оба источника данных: 37
+2026-04-03 22:04:11 [INFO] __main__: Только Ostrovok: 134
+2026-04-03 22:04:11 [INFO] __main__: Только Tvil: 20
+2026-04-03 22:04:11 [INFO] __main__: Результат сохранен в: C:\Users\matve\Desktop\parsers\all-data\2026-04-03.csv
+2026-04-03 22:04:28 [INFO] __main__: Используемый каталог: C:\Users\matve\Desktop\parsers\matching\merge-results\matched-catalog.csv
+2026-04-03 22:04:28 [INFO] __main__: Статистика Ostrovok: C:\Users\matve\Desktop\parsers\ostrovok-data\daily\statistics\2026-04-03.csv
+2026-04-03 22:04:28 [INFO] __main__: Статистика Tvil: C:\Users\matve\Desktop\parsers\tvil-data\daily\statistics\2026-04-03.csv
+2026-04-03 22:04:28 [INFO] __main__: Начало процесса объединения ежедневной статистики...
+2026-04-03 22:04:28 [INFO] __main__: Файл прочитан: matched-catalog.csv (строк: 219)
+2026-04-03 22:04:28 [INFO] __main__: Файл прочитан: 2026-04-03.csv (строк: 171)
+2026-04-03 22:04:28 [INFO] __main__: Файл прочитан: 2026-04-03.csv (строк: 57)
+2026-04-03 22:04:28 [INFO] __main__: --- ИТОГО СТАТИСТИКА ---
+2026-04-03 22:04:28 [INFO] __main__: Всего строк сохранено: 219
+2026-04-03 22:04:28 [INFO] __main__: Оба источника данных: 37
+2026-04-03 22:04:28 [INFO] __main__: Только Ostrovok: 134
+2026-04-03 22:04:28 [INFO] __main__: Только Tvil: 20
+2026-04-03 22:04:28 [INFO] __main__: Результат сохранен в: C:\Users\matve\Desktop\parsers\all-data\2026-04-03.csv
+2026-04-03 22:04:44 [INFO] __main__: Используемый каталог: C:\Users\matve\Desktop\parsers\matching\merge-results\matched-catalog.csv
+2026-04-03 22:04:44 [INFO] __main__: Статистика Ostrovok: C:\Users\matve\Desktop\parsers\ostrovok-data\daily\statistics\2026-04-03.csv
+2026-04-03 22:04:44 [INFO] __main__: Статистика Tvil: C:\Users\matve\Desktop\parsers\tvil-data\daily\statistics\2026-04-03.csv
+2026-04-03 22:04:44 [INFO] __main__: Начало процесса объединения ежедневной статистики...
+2026-04-03 22:04:44 [INFO] __main__: Файл прочитан: matched-catalog.csv (строк: 219)
+2026-04-03 22:04:44 [INFO] __main__: Файл прочитан: 2026-04-03.csv (строк: 171)
+2026-04-03 22:04:44 [INFO] __main__: Файл прочитан: 2026-04-03.csv (строк: 57)
+2026-04-03 22:04:44 [INFO] __main__: --- ИТОГО СТАТИСТИКА ---
+2026-04-03 22:04:44 [INFO] __main__: Всего строк сохранено: 219
+2026-04-03 22:04:44 [INFO] __main__: Оба источника данных: 37
+2026-04-03 22:04:44 [INFO] __main__: Только Ostrovok: 134
+2026-04-03 22:04:44 [INFO] __main__: Только Tvil: 20
+2026-04-03 22:04:44 [INFO] __main__: Результат сохранен в: C:\Users\matve\Desktop\parsers\all-data\2026-04-03.csv

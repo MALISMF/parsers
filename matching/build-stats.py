@@ -136,6 +136,7 @@ class DailyStatsMerger:
                 "max_free_rooms": self._max_of(o_free_rooms, t_free_rooms),
                 "ostrovok_free_rooms_pct": int(o_avail_pct) if o_avail_pct is not None else "",
                 "tvil_free_rooms_pct": int(t_avail_pct) if t_avail_pct is not None else "",
+                "avg_free_rooms_pct": self._avg_of(o_avail_pct, t_avail_pct),
                 "ostrovok_occupancy_pct": o_occ_pct,
                 "tvil_occupancy_pct": t_occ_pct,
                 "avg_occupancy_pct": avg_occupancy_pct,
@@ -153,7 +154,7 @@ class DailyStatsMerger:
             "ostrovok_rooms_number", "tvil_rooms_number",
             "ostrovok_free_rooms", "tvil_free_rooms",
             "min_free_rooms", "avg_free_rooms", "max_free_rooms",
-            "ostrovok_free_rooms_pct", "tvil_free_rooms_pct",
+            "ostrovok_free_rooms_pct", "tvil_free_rooms_pct", "avg_free_rooms_pct",
             "ostrovok_occupancy_pct","tvil_occupancy_pct","avg_occupancy_pct",
             "ostrovok_capacity", "tvil_capacity", "avg_capacity",
         ]
