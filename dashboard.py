@@ -63,13 +63,6 @@ with st.sidebar:
 
 df = load_map_df(all_data_dir / selected_name)
 
-if df.empty:
-    st.error(
-        "Не удалось построить данные для выбранного файла. "
-        "Проверьте колонки в CSV и наличие matching/merge-results/matched-catalog.csv."
-    )
-    st.stop()
-
 with st.sidebar:
     st.markdown("### Фильтры")
     cities = sorted(df["city"].dropna().unique())
@@ -199,14 +192,44 @@ if "Свободно %" in table.columns:
 st.dataframe(table, use_container_width=True, height=400, column_config=col_cfg, hide_index=True)
 st.markdown("### Загруженность номерного фонда по городам")
 
-# Столбчатая диаграмма
-selection = st.pills(
-    "Сортировать по:", 
-    options=["Загруженность", "Свободные номера", "Название"],
-    default="Загруженность" # вариант по умолчанию
+city_chart_mode = st.pills(
+    "Показать по городам:",
+    options=["Общее кол-во мест", "Среднее кол-во мест"],
+    default="Общее кол-во мест",
 )
 
-st.write(f"Выбрано: {selection}")
+if city_chart_mode in (None, "Общее кол-во мест"):
+    df_city = df.groupby("city", as_index=False)["avg_free_rooms"].sum()
+    total_free = df_city["avg_free_rooms"].sum()
+    if total_free and total_free != 0:
+        df_city["_pct_label"] = (
+            df_city["avg_free_rooms"] / total_free * 100
+        ).map(lambda x: f"{x:.1f}%")
+    else:
+        df_city["_pct_label"] = "0.0%"
 
-df_grouped = df.groupby("city", as_index=False)["avg_free_rooms"].sum()
-st.bar_chart(df_grouped, x = "city", y = "avg_free_rooms", color = "city")
+    fig_city = px.bar(
+        df_city,
+        x="city",
+        y="avg_free_rooms",
+        color="city",
+        text="_pct_label",
+    )
+    fig_city.update_traces(textposition="outside")
+    fig_city.update_layout(
+        showlegend=False,
+        xaxis_title="Город",
+        yaxis_title="Сумма (avg_free_rooms)",
+        margin=dict(t=30, b=40),
+    )
+    st.plotly_chart(fig_city, use_container_width=True,  config={'scrollZoom': False })
+else:
+    df_city = df.groupby("city", as_index=False)["avg_free_rooms"].mean()
+    fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city")
+    fig_city.update_layout(
+        showlegend=False,
+        xaxis_title="Город",
+        yaxis_title="Среднее (avg_free_rooms)",
+        margin=dict(t=10, b=40),
+    )
+    st.plotly_chart(fig_city, use_container_width=True,  config={'scrollZoom': False})
