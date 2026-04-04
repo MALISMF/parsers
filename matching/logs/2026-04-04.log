@@ -1,0 +1,26 @@
+2026-04-04 08:56:57 [INFO] __main__: Загружено существующих матчей: 44
+2026-04-04 08:56:57 [INFO] __main__: Сохранено матчей: 44 -> /home/runner/work/parsers/parsers/matching/match-results/matches.csv
+2026-04-04 08:56:57 [INFO] __main__: Начало процесса слияния каталогов...
+2026-04-04 08:56:57 [INFO] __main__: Файл прочитан: matches.csv (строк: 44)
+2026-04-04 08:56:57 [INFO] __main__: Файл прочитан: hotels.csv (строк: 194)
+2026-04-04 08:56:57 [INFO] __main__: Файл прочитан: hotels.csv (строк: 69)
+2026-04-04 08:56:57 [INFO] __main__: Обработка найденных совпадений из matches.csv
+2026-04-04 08:56:57 [INFO] __main__: --- ИТОГО ---
+2026-04-04 08:56:57 [INFO] __main__: Всего строк в каталоге: 219
+2026-04-04 08:56:57 [INFO] __main__: Совпадений (matched): 44
+2026-04-04 08:56:57 [INFO] __main__: Только Ostrovok: 150
+2026-04-04 08:56:57 [INFO] __main__: Только Tvil: 25
+2026-04-04 08:56:57 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/matching/merge-results/matched-catalog.csv
+2026-04-04 08:56:58 [INFO] __main__: Используемый каталог: /home/runner/work/parsers/parsers/matching/merge-results/matched-catalog.csv
+2026-04-04 08:56:58 [INFO] __main__: Статистика Ostrovok: /home/runner/work/parsers/parsers/ostrovok-data/daily/statistics/2026-04-04.csv
+2026-04-04 08:56:58 [INFO] __main__: Статистика Tvil: /home/runner/work/parsers/parsers/tvil-data/daily/statistics/2026-04-04.csv
+2026-04-04 08:56:58 [INFO] __main__: Начало процесса объединения ежедневной статистики...
+2026-04-04 08:56:58 [INFO] __main__: Файл прочитан: matched-catalog.csv (строк: 219)
+2026-04-04 08:56:58 [INFO] __main__: Файл прочитан: 2026-04-04.csv (строк: 175)
+2026-04-04 08:56:58 [INFO] __main__: Файл прочитан: 2026-04-04.csv (строк: 60)
+2026-04-04 08:56:58 [INFO] __main__: --- ИТОГО СТАТИСТИКА ---
+2026-04-04 08:56:58 [INFO] __main__: Всего строк сохранено: 219
+2026-04-04 08:56:58 [INFO] __main__: Оба источника данных: 39
+2026-04-04 08:56:58 [INFO] __main__: Только Ostrovok: 136
+2026-04-04 08:56:58 [INFO] __main__: Только Tvil: 21
+2026-04-04 08:56:58 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/all-data/2026-04-04.csv
