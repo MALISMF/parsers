@@ -127,19 +127,25 @@ class DailyStatsMerger:
                 "city": city,
                 "name": name,
                 "address": address,
+
                 "ostrovok_rooms_number": int(o_rooms_num) if o_rooms_num is not None else "",
                 "tvil_rooms_number": int(t_rooms_num) if t_rooms_num is not None else "",
+
                 "ostrovok_free_rooms": int(o_free_rooms) if o_free_rooms is not None else "",
                 "tvil_free_rooms": int(t_free_rooms) if t_free_rooms is not None else "",
+
                 "min_free_rooms": self._min_of(o_free_rooms, t_free_rooms),
                 "avg_free_rooms": self._avg_of(o_free_rooms, t_free_rooms),
                 "max_free_rooms": self._max_of(o_free_rooms, t_free_rooms),
+
                 "ostrovok_free_rooms_pct": int(o_avail_pct) if o_avail_pct is not None else "",
                 "tvil_free_rooms_pct": int(t_avail_pct) if t_avail_pct is not None else "",
                 "avg_free_rooms_pct": self._avg_of(o_avail_pct, t_avail_pct),
+
                 "ostrovok_occupancy_pct": o_occ_pct,
                 "tvil_occupancy_pct": t_occ_pct,
                 "avg_occupancy_pct": avg_occupancy_pct,
+                
                 "ostrovok_capacity": int(o_capacity) if o_capacity is not None else "",
                 "tvil_capacity": int(t_capacity) if t_capacity is not None else "",
                 "avg_capacity": self._avg_of(o_capacity, t_capacity),
