@@ -13,6 +13,7 @@ st.set_page_config(
     layout="wide",
 )
 
+
 BASE = Path(__file__).parent
 
 
@@ -207,12 +208,13 @@ def _format_int(x) -> str:
 rooms_total_filtered = float(_rooms_per_hotel_series(filtered).sum(skipna=True)) if not filtered.empty else float("nan")
 free_total_filtered = float(pd.to_numeric(filtered["avg_free_rooms"], errors="coerce").sum(skipna=True)) if not filtered.empty and "avg_free_rooms" in filtered.columns else float("nan")
 
-c1, c2, c3, c4, c5 = st.columns(5)
-c1.metric("Отелей на карте", len(filtered))
-c2.metric("Средняя загруженность", f"{filtered['avg_occupancy_pct'].mean():.1f}%" if not filtered.empty else "—")
-c3.metric("Среднее свободных мест, %", f"{filtered['avg_free_rooms_pct'].mean():.1f}%" if not filtered.empty else "—")
-c4.metric("Всего номеров", _format_int(rooms_total_filtered))
-c5.metric("Свободных номеров", _format_int(free_total_filtered))
+with st.container(border=True):
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Отелей на карте", len(filtered))
+    c2.metric("Средняя загруженность", f"{filtered['avg_occupancy_pct'].mean():.1f}%" if not filtered.empty else "—")
+    c3.metric("Среднее свободных мест, %", f"{filtered['avg_free_rooms_pct'].mean():.1f}%" if not filtered.empty else "—")
+    c4.metric("Всего номеров", _format_int(rooms_total_filtered))
+    c5.metric("Свободных номеров", _format_int(free_total_filtered))
 
 # Цвет: синий для отелей без данных, иначе шкала загруженности
 filtered["occ_display"] = filtered["avg_occupancy_pct"]
@@ -304,91 +306,91 @@ if sel_hotels and len(sel_hotels) < len(all_hotels_in_cities):
 _filter_caption = ("Фильтр: " + " · ".join(_filter_parts)) if _filter_parts else ""
 
 # ── Карта ─────────────────────────────────────────────────────────────────────
-st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True}, key="map_chart")
+with st.container(border=True):
+    st.markdown("### Карта")
+    st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True}, key="map_chart")
 
 # ── Временная динамика ─────────────────────────────────────────────────────────
 if ts_occ.empty:
     st.info("Нет данных для графиков динамики.")
 else:
-    st.markdown("### Временная динамика")
-    fig_ts = make_subplots(specs=[[{"secondary_y": True}]])
-    fig_ts.add_trace(go.Scatter(x=ts_occ["date"], y=ts_occ["avg_occupancy_pct"], name="Загруженность, %", mode="lines+markers", line=dict(width=2, color="#3498db")), secondary_y=False)
-    fig_ts.add_trace(go.Scatter(x=ts_occ["date"], y=ts_occ["free_rooms_sum"], name="Свободных номеров (сумма)", mode="lines+markers", line=dict(width=2, color="#e67e22")), secondary_y=True)
-    fig_ts.update_layout(xaxis_title="Дата", hovermode="x unified", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), margin=dict(t=50, b=40, l=55, r=55))
-    fig_ts.update_yaxes(title_text="Загруженность, %", secondary_y=False)
-    fig_ts.update_yaxes(title_text="Номеров / свободно, шт", secondary_y=True)
-    st.plotly_chart(fig_ts, use_container_width=True, config={"scrollZoom": True})
-    if _filter_caption:
-        st.caption(_filter_caption)
-
-    st.markdown("### Тепловая карта загруженности")
-    cal_metric = st.radio("Метрика", options=["avg_occupancy_pct", "avg_free_rooms_pct"], format_func=lambda x: "Загруженность, %" if x == "avg_occupancy_pct" else "Свободные места, %", horizontal=True)
-    if cal_metric in ts_occ.columns:
-        cal_title = "Средняя загруженность по дням, %" if cal_metric == "avg_occupancy_pct" else "Доля свободных мест по дням, %"
-        fig_cal = build_calendar_heatmap(ts_occ, cal_metric, cal_title)
-        st.plotly_chart(fig_cal, use_container_width=True, config={"scrollZoom": False})
+    with st.container(border=True):
+        st.markdown("### Временная динамика")
+        fig_ts = make_subplots(specs=[[{"secondary_y": True}]])
+        fig_ts.add_trace(go.Scatter(x=ts_occ["date"], y=ts_occ["avg_occupancy_pct"], name="Загруженность, %", mode="lines+markers", line=dict(width=2, color="#3498db")), secondary_y=False)
+        fig_ts.add_trace(go.Scatter(x=ts_occ["date"], y=ts_occ["free_rooms_sum"], name="Свободных номеров (сумма)", mode="lines+markers", line=dict(width=2, color="#e67e22")), secondary_y=True)
+        fig_ts.update_layout(xaxis_title="Дата", hovermode="x unified", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), margin=dict(t=50, b=40, l=55, r=55))
+        fig_ts.update_yaxes(title_text="Загруженность, %", secondary_y=False)
+        fig_ts.update_yaxes(title_text="Номеров / свободно, шт", secondary_y=True)
+        st.plotly_chart(fig_ts, use_container_width=True, config={"scrollZoom": True})
         if _filter_caption:
             st.caption(_filter_caption)
-    else:
-        st.info("Недостаточно данных для построения тепловой карты.")
+
+    with st.container(border=True):
+        st.markdown("### Тепловая карта загруженности")
+        cal_metric = st.radio("Метрика", options=["avg_occupancy_pct", "avg_free_rooms_pct"], format_func=lambda x: "Загруженность, %" if x == "avg_occupancy_pct" else "Свободные места, %", horizontal=True)
+        if cal_metric in ts_occ.columns:
+            cal_title = "Средняя загруженность по дням, %" if cal_metric == "avg_occupancy_pct" else "Доля свободных мест по дням, %"
+            fig_cal = build_calendar_heatmap(ts_occ, cal_metric, cal_title)
+            st.plotly_chart(fig_cal, use_container_width=True, config={"scrollZoom": False})
+            if _filter_caption:
+                st.caption(_filter_caption)
+        else:
+            st.info("Недостаточно данных для построения тепловой карты.")
 
 # ── Столбчатая диаграмма по городам ──────────────────────────────────────────
-st.markdown("### Загруженность номерного фонда по городам")
-city_chart_mode = st.pills("Показать по городам:", options=["Общее кол-во мест", "Среднее кол-во мест"], default="Общее кол-во мест")
-if city_chart_mode in (None, "Общее кол-во мест"):
-    df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].sum()
-    total_free = df_city["avg_free_rooms"].sum()
-    df_city["_pct_label"] = (df_city["avg_free_rooms"] / total_free * 100).map(lambda x: f"{x:.1f}%") if total_free else "0.0%"
-    fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city", text="_pct_label")
-    fig_city.update_traces(textposition="outside")
-    fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Сумма (avg_free_rooms)", margin=dict(t=30, b=40))
-else:
-    df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].mean()
-    fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city")
-    fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Среднее (avg_free_rooms)", margin=dict(t=10, b=40))
-st.plotly_chart(fig_city, use_container_width=True, config={"scrollZoom": False})
+with st.container(border=True):
+    st.markdown("### Загруженность номерного фонда по городам")
+    city_chart_mode = st.pills("Показать по городам:", options=["Общее кол-во мест", "Среднее кол-во мест"], default="Общее кол-во мест")
+    if city_chart_mode in (None, "Общее кол-во мест"):
+        df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].sum()
+        total_free = df_city["avg_free_rooms"].sum()
+        df_city["_pct_label"] = (df_city["avg_free_rooms"] / total_free * 100).map(lambda x: f"{x:.1f}%") if total_free else "0.0%"
+        fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city", text="_pct_label")
+        fig_city.update_traces(textposition="outside")
+        fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Сумма (avg_free_rooms)", margin=dict(t=30, b=40))
+    else:
+        df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].mean()
+        fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city")
+        fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Среднее (avg_free_rooms)", margin=dict(t=10, b=40))
+    st.plotly_chart(fig_city, use_container_width=True, config={"scrollZoom": False})
 
 # ── Таблица ───────────────────────────────────────────────────────────────────
-st.markdown("### Данные")
-
-table_mode = st.radio(
-    "Режим таблицы",
-    options=["Основные показатели", "Полная таблица"],
-    horizontal=True,
-    label_visibility="collapsed",
-)
-
-search = st.text_input("Поиск", placeholder="Название или город...")
-
-if table_mode == "Основные показатели":
-    table_cols = {
-        "city": "Город", "name": "Название",
-        "avg_occupancy_pct": "Загруженность %",
-        "avg_free_rooms_pct": "Свободно %",
-        "avg_free_rooms": "Свободных мест",
-    }
-    available = {k: v for k, v in table_cols.items() if k in filtered.columns}
-    table = (
-        filtered[list(available.keys())]
-        .rename(columns=available)
-        .sort_values("Загруженность %", ascending=False, na_position="last")
-        .reset_index(drop=True)
+with st.container(border=True):
+    st.markdown("### Данные")
+    table_mode = st.radio(
+        "Режим таблицы",
+        options=["Основные показатели", "Полная таблица"],
+        horizontal=True,
+        label_visibility="collapsed",
     )
-    col_cfg = {}
-    if "Загруженность %" in table.columns:
-        col_cfg["Загруженность %"] = st.column_config.ProgressColumn("Загруженность %", min_value=0, max_value=100, format="%.1f%%")
-    if "Свободно %" in table.columns:
-        col_cfg["Свободно %"] = st.column_config.ProgressColumn("Свободно %", min_value=0, max_value=100, format="%.1f%%")
-else:
-    table = filtered.drop(columns=["occ_display", "has_data", "hover", "occ_fill"], errors="ignore").reset_index(drop=True)
-    col_cfg = {}
-
-if search:
-    str_cols = table.select_dtypes(include="object").columns
-    mask = pd.Series([False] * len(table), index=table.index)
-    for col in ["Название", "Город", "name", "city"]:
-        if col in table.columns:
-            mask |= table[col].str.contains(search, case=False, na=False)
-    table = table[mask]
-
-st.dataframe(table, use_container_width=True, height=400, column_config=col_cfg, hide_index=True)
+    search = st.text_input("Поиск", placeholder="Название или город...")
+    if table_mode == "Основные показатели":
+        table_cols = {
+            "city": "Город", "name": "Название",
+            "avg_occupancy_pct": "Загруженность %",
+            "avg_free_rooms_pct": "Свободно %",
+            "avg_free_rooms": "Свободных мест",
+        }
+        available = {k: v for k, v in table_cols.items() if k in filtered.columns}
+        table = (
+            filtered[list(available.keys())]
+            .rename(columns=available)
+            .sort_values("Загруженность %", ascending=False, na_position="last")
+            .reset_index(drop=True)
+        )
+        col_cfg = {}
+        if "Загруженность %" in table.columns:
+            col_cfg["Загруженность %"] = st.column_config.ProgressColumn("Загруженность %", min_value=0, max_value=100, format="%.1f%%")
+        if "Свободно %" in table.columns:
+            col_cfg["Свободно %"] = st.column_config.ProgressColumn("Свободно %", min_value=0, max_value=100, format="%.1f%%")
+    else:
+        table = filtered.drop(columns=["occ_display", "has_data", "hover", "occ_fill"], errors="ignore").reset_index(drop=True)
+        col_cfg = {}
+    if search:
+        mask = pd.Series([False] * len(table), index=table.index)
+        for col in ["Название", "Город", "name", "city"]:
+            if col in table.columns:
+                mask |= table[col].str.contains(search, case=False, na=False)
+        table = table[mask]
+    st.dataframe(table, use_container_width=True, height=400, column_config=col_cfg, hide_index=True)
