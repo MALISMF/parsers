@@ -25,6 +25,16 @@ class FuzzyMatcher:
         self.name_scorer = fuzz.token_sort_ratio
         self.address_scorer = fuzz.token_set_ratio
 
+    @staticmethod
+    def _score_key(r):
+        v = r.get("address_score")
+        if v is None or v == "":
+            return 0
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return 0
+
     def run(self, ostrovok_dir, tvil_dir, output_file):
         # 1. Поиск файлов
         ostrovok_csv = self.latest_csv_file(ostrovok_dir)
@@ -42,11 +52,11 @@ class FuzzyMatcher:
 
         # 3. Матчинг
         new_results = self.match_catalogs(ostrovok_map, tvil_map)
-        new_results.sort(key=lambda r: r["address_score"] if r["address_score"] is not None else 0, reverse=True)
+        new_results.sort(key=self._score_key, reverse=True)
 
         # 4. Слияние и сохранение
         final_results = self.merge_with_existing(new_results, existing)
-        final_results.sort(key=lambda r: r["address_score"] if r["address_score"] is not None else 0, reverse=True)
+        final_results.sort(key=self._score_key, reverse=True)
 
         self.save_results(final_results, output_file)
 
