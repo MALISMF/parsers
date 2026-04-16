@@ -61,8 +61,9 @@ def load_map_df(all_data_path: Path) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=300)
-def load_occupancy_timeseries(all_data_dir: Path) -> pd.DataFrame:
-    """По каждому CSV в all-data (имя YYYY-MM-DD): загрузка %, сумма номеров, сумма свободных (avg_free_rooms)."""
+def load_occupancy_timeseries(all_data_dir: Path, cities: tuple = ()) -> pd.DataFrame:
+    """По каждому CSV в all-data (имя YYYY-MM-DD): загрузка %, сумма номеров, сумма свободных.
+    Если cities задан — фильтрует по городам перед вычислением метрик."""
     rows = []
     for p in sorted(all_data_dir.glob("*.csv")):
         try:
@@ -74,6 +75,11 @@ def load_occupancy_timeseries(all_data_dir: Path) -> pd.DataFrame:
         except Exception:
             continue
         if "avg_occupancy_pct" not in part.columns:
+            continue
+        # Фильтр по городам
+        if cities and "city" in part.columns:
+            part = part[part["city"].isin(cities)]
+        if part.empty:
             continue
         part["avg_occupancy_pct"] = pd.to_numeric(
             part["avg_occupancy_pct"], errors="coerce"
@@ -329,7 +335,7 @@ fig.update_layout(margin={"t": 0, "b": 0, "l": 0, "r": 0}, dragmode="pan")
 
 st.plotly_chart(fig, use_container_width=True, config={'scrollZoom': True})
 
-ts_occ = load_occupancy_timeseries(all_data_dir)
+ts_occ = load_occupancy_timeseries(all_data_dir, tuple(sorted(sel_cities)))
 
 st.markdown("### Временная динамика")
 if ts_occ.empty:
