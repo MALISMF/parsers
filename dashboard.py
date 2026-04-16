@@ -42,7 +42,6 @@ def load_map_df(all_data_path: Path) -> pd.DataFrame:
         ["merged_id", "lat", "lon"]
     ].dropna(subset=["lat", "lon"])
 
-
     df = all_data.merge(matched_catalog, on="merged_id", how="left")
 
     for col in [
@@ -89,10 +88,17 @@ def load_occupancy_timeseries(all_data_dir: Path) -> pd.DataFrame:
             )
         else:
             free_sum = 0.0
+        if "avg_free_rooms_pct" in part.columns:
+            free_pct_mean = float(
+                pd.to_numeric(part["avg_free_rooms_pct"], errors="coerce").mean(skipna=True)
+            )
+        else:
+            free_pct_mean = round(100.0 - float(m), 1)
         rows.append(
             {
                 "date": day,
                 "avg_occupancy_pct": float(m),
+                "avg_free_rooms_pct": free_pct_mean,
                 "total_rooms_sum": room_sum,
                 "free_rooms_sum": free_sum,
             }
@@ -102,6 +108,93 @@ def load_occupancy_timeseries(all_data_dir: Path) -> pd.DataFrame:
     out = pd.DataFrame(rows).sort_values("date")
     out["date"] = pd.to_datetime(out["date"])
     return out
+
+
+def build_calendar_heatmap(ts: pd.DataFrame, metric_col: str, title: str) -> go.Figure:
+    """
+    Тепловая карта-календарь: строки — месяцы, столбцы — дни 1–31,
+    цвет — среднее значение метрики за конкретную дату.
+    """
+    df = ts.copy()
+    df["month"] = df["date"].dt.to_period("M")
+    df["day"] = df["date"].dt.day
+
+    months = sorted(df["month"].unique())
+
+    # Форматируем метки месяцев на русском
+    ru_months = {
+        1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель",
+        5: "Май", 6: "Июнь", 7: "Июль", 8: "Август",
+        9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь"
+    }
+    month_labels = [f"{ru_months[m.month]} {m.year}" for m in months]
+
+    # Матрица: строки — месяцы, столбцы — дни 1..31
+    matrix = []
+    text_matrix = []
+    hover_matrix = []
+    for m in months:
+        row = []
+        text_row = []
+        hover_row = []
+        month_data = df[df["month"] == m].set_index("day")[metric_col]
+        label = f"{ru_months[m.month]} {m.year}"
+        for day in range(1, 32):
+            if day in month_data.index and not pd.isna(month_data[day]):
+                val = round(month_data[day], 1)
+                row.append(val)
+                text_row.append(f"{val:.1f}%")
+                hover_row.append(f"{day} {label}: {val:.1f}%")
+            else:
+                row.append(None)
+                text_row.append("")
+                hover_row.append("")
+        matrix.append(row)
+        text_matrix.append(text_row)
+        hover_matrix.append(hover_row)
+
+    cell_h = max(44, min(60, 400 // max(len(months), 1)))
+
+    fig = go.Figure(go.Heatmap(
+        z=matrix,
+        x=list(range(1, 32)),
+        y=month_labels,
+        text=text_matrix,
+        customdata=hover_matrix,
+        texttemplate="%{text}",
+        textfont={"size": 10},
+        colorscale=[
+            [0.00, "#00e676"],
+            [0.25, "#69f0ae"],
+            [0.50, "#ffff00"],
+            [0.75, "#ffab00"],
+            [1.00, "#ff5252"],
+        ],
+        zmin=0,
+        zmax=100,
+        colorbar=dict(title="%", thickness=12, len=0.8),
+        hovertemplate="%{customdata}<extra></extra>",
+    ))
+
+    fig.update_layout(
+        title=dict(text=title, font=dict(size=14)),
+        xaxis=dict(
+            title="День месяца",
+            tickmode="linear",
+            tick0=1,
+            dtick=1,
+            tickfont=dict(size=11),
+            side="bottom",
+        ),
+        yaxis=dict(
+            title="",
+            tickfont=dict(size=12),
+            autorange="reversed",
+        ),
+        margin=dict(t=60, b=50, l=110, r=50),
+        height=max(180, len(months) * cell_h + 120),
+    )
+    return fig
 
 
 all_data_dir = BASE / "all-data"
@@ -234,9 +327,10 @@ fig.update_coloraxes(
 )
 fig.update_layout(margin={"t": 0, "b": 0, "l": 0, "r": 0}, dragmode="pan")
 
-st.plotly_chart(fig, use_container_width=True, config={'scrollZoom': True} )
+st.plotly_chart(fig, use_container_width=True, config={'scrollZoom': True})
 
 ts_occ = load_occupancy_timeseries(all_data_dir)
+
 st.markdown("### Временная динамика")
 if ts_occ.empty:
     st.info("Нет данных для графика: в all-data нет CSV с именем YYYY-MM-DD и колонкой avg_occupancy_pct.")
@@ -272,7 +366,28 @@ else:
     fig_ts.update_yaxes(title_text="Номеров / свободно, шт", secondary_y=True)
     st.plotly_chart(fig_ts, use_container_width=True, config={"scrollZoom": True})
 
-# Таблица
+    # ── Тепловая карта-календарь ──────────────────────────────────────────────
+    st.markdown("### Тепловая карта загруженности")
+
+    cal_metric = st.radio(
+        "Метрика",
+        options=["avg_occupancy_pct", "avg_free_rooms_pct"],
+        format_func=lambda x: "Загруженность, %" if x == "avg_occupancy_pct" else "Свободные места, %",
+        horizontal=True,
+    )
+
+    if cal_metric in ts_occ.columns:
+        cal_title = (
+            "Средняя загруженность по дням, %"
+            if cal_metric == "avg_occupancy_pct"
+            else "Доля свободных мест по дням, %"
+        )
+        fig_cal = build_calendar_heatmap(ts_occ, cal_metric, cal_title)
+        st.plotly_chart(fig_cal, use_container_width=True, config={"scrollZoom": False})
+    else:
+        st.info("Недостаточно данных для построения тепловой карты.")
+
+# ── Таблица ───────────────────────────────────────────────────────────────────
 st.markdown("### Данные")
 
 table_cols = {
@@ -309,6 +424,7 @@ if "Свободно %" in table.columns:
     )
 
 st.dataframe(table, use_container_width=True, height=400, column_config=col_cfg, hide_index=True)
+
 st.markdown("### Загруженность номерного фонда по городам")
 
 city_chart_mode = st.pills(
@@ -341,7 +457,7 @@ if city_chart_mode in (None, "Общее кол-во мест"):
         yaxis_title="Сумма (avg_free_rooms)",
         margin=dict(t=30, b=40),
     )
-    st.plotly_chart(fig_city, use_container_width=True,  config={'scrollZoom': False })
+    st.plotly_chart(fig_city, use_container_width=True, config={'scrollZoom': False})
 else:
     df_city = df.groupby("city", as_index=False)["avg_free_rooms"].mean()
     fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city")
@@ -351,4 +467,4 @@ else:
         yaxis_title="Среднее (avg_free_rooms)",
         margin=dict(t=10, b=40),
     )
-    st.plotly_chart(fig_city, use_container_width=True,  config={'scrollZoom': False})
+    st.plotly_chart(fig_city, use_container_width=True, config={'scrollZoom': False})
