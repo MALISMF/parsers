@@ -150,7 +150,14 @@ def build_calendar_heatmap(ts: pd.DataFrame, metric_col: str, title: str) -> go.
                 val = round(month_data[day], 1)
                 row.append(val)
                 text_row.append(f"{val:.1f}%")
-                hover_row.append(f"{day} {label}: {val:.1f}%")
+                # Compute day of week
+                try:
+                    dt = datetime(m.year, m.month, day)
+                    ru_days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+                    dow = ru_days[dt.weekday()]
+                except ValueError:
+                    dow = ""
+                hover_row.append(f"{day} {label} ({dow}): {val:.1f}%")
             else:
                 row.append(None)
                 text_row.append("")
@@ -285,9 +292,32 @@ c4.metric("Всего номеров", _format_int(rooms_total_filtered))
 c5.metric("Свободных номеров", _format_int(free_total_filtered))
 
 filtered["occ_display"] = filtered["avg_occupancy_pct"].fillna(0)
+def _rooms_total(row):
+    """Максимальный номерной фонд из двух источников."""
+    vals = []
+    for col in ["ostrovok_rooms_number", "tvil_rooms_number"]:
+        try:
+            v = float(row.get(col, float("nan")))
+            if not pd.isna(v):
+                vals.append(v)
+        except (TypeError, ValueError):
+            pass
+    return int(max(vals)) if vals else None
+
 filtered["hover"] = (
     "<b>" + filtered["name"].fillna("") + "</b><br>"
     + filtered["city"].fillna("") + "<br>"
+    + "Свободных номеров: <b>"
+    + filtered["avg_free_rooms"].apply(
+        lambda x: f"{int(round(x))} шт." if pd.notna(x) else "нет данных"
+    )
+    + "</b><br>"
+    + "Номерной фонд: <b>"
+    + filtered.apply(
+        lambda row: f"{_rooms_total(row)} шт." if _rooms_total(row) is not None else "нет данных",
+        axis=1
+    )
+    + "</b><br>"
     + "Свободно: <b>"
     + filtered["avg_free_rooms_pct"].apply(
         lambda x: f"{x:.1f}%" if pd.notna(x) else "нет данных"
