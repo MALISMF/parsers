@@ -363,6 +363,8 @@ _filter_caption = ("Фильтр: " + " · ".join(_filter_parts)) if _filter_par
 # ── Карта ─────────────────────────────────────────────────────────────────────
 with st.container(border=True):
     st.markdown("### Карта")
+    _date_caption = f"Данные на: {Path(selected_name).stem}"
+    st.caption(_date_caption)
     map_mode = st.radio("Режим карты", options=["Точки", "Сетчатая карта"], horizontal=True, label_visibility="collapsed")
     hex_resolution = None
     if map_mode == "Сетчатая карта":
@@ -420,11 +422,8 @@ with st.container(border=True):
     else:
         st.plotly_chart(fig, use_container_width=True, config={'scrollZoom': True}, key='map_chart')
 
-    _date_caption = f"Данные на: {Path(selected_name).stem}"
     if _filter_caption:
-        st.caption(f"{_date_caption} · {_filter_caption}")
-    else:
-        st.caption(_date_caption)
+        st.caption(_filter_caption)
 
 # ── Временная динамика ─────────────────────────────────────────────────────────
 if ts_occ.empty:
@@ -546,6 +545,7 @@ else:
 # ── Столбчатая диаграмма по городам ──────────────────────────────────────────
 with st.container(border=True):
     st.markdown("### Свободные места по городам")
+    st.caption(_date_caption)
     city_chart_mode = st.pills("Показать по городам:", options=["Сумма свободных мест", "Среднее свободных мест"], default="Сумма свободных мест")
     if city_chart_mode in (None, "Сумма свободных мест"):
         df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].sum()
@@ -562,9 +562,7 @@ with st.container(border=True):
         fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Свободных мест (среднее, шт.)", margin=dict(t=10, b=40))
     st.plotly_chart(fig_city, use_container_width=True, config={"scrollZoom": False})
     if _filter_caption:
-        st.caption(f"{_date_caption} · {_filter_caption}")
-    else:
-        st.caption(_date_caption)
+        st.caption(_filter_caption)
 
 # ── Таблица ───────────────────────────────────────────────────────────────────
 with st.container(border=True):
@@ -577,11 +575,13 @@ with st.container(border=True):
     )
     search = st.text_input("Поиск", placeholder="Название или город...")
     if table_mode == "Основные показатели":
+        filtered["rooms_total"] = filtered.apply(_rooms_total, axis=1)
         table_cols = {
             "city": "Город", "name": "Название",
             "avg_occupancy_pct": "Загруженность %",
             "avg_free_rooms_pct": "Свободно %",
             "avg_free_rooms": "Свободных мест",
+            "rooms_total": "Номерной фонд",
         }
         available = {k: v for k, v in table_cols.items() if k in filtered.columns}
         table = (
