@@ -393,10 +393,19 @@ with st.container(border=True):
             fig_hex.add_trace(go.Scattermapbox(
                 lat=_free['lat'], lon=_free['lon'],
                 mode='markers',
+                marker=go.scattermapbox.Marker(size=10, color='#ffffff', opacity=0.85),
+                hoverinfo='skip',
+                legendgroup='hex_free',
+                showlegend=False,
+            ))
+            fig_hex.add_trace(go.Scattermapbox(
+                lat=_free['lat'], lon=_free['lon'],
+                mode='markers',
                 marker=go.scattermapbox.Marker(size=8, color='#111111', opacity=0.9),
                 customdata=_free[['hover']].values,
                 hovertemplate='%{customdata[0]}<extra></extra>',
                 name='Есть свободные места',
+                legendgroup='hex_free',
                 showlegend=True,
             ))
 
@@ -404,10 +413,19 @@ with st.container(border=True):
             fig_hex.add_trace(go.Scattermapbox(
                 lat=_full['lat'], lon=_full['lon'],
                 mode='markers',
+                marker=go.scattermapbox.Marker(size=10, color='#333333', opacity=0.85),
+                hoverinfo='skip',
+                legendgroup='hex_full',
+                showlegend=False,
+            ))
+            fig_hex.add_trace(go.Scattermapbox(
+                lat=_full['lat'], lon=_full['lon'],
+                mode='markers',
                 marker=go.scattermapbox.Marker(size=8, color='#ffffff', opacity=0.9),
                 customdata=_full[['hover']].values,
                 hovertemplate='%{customdata[0]}<extra></extra>',
                 name='Загруженность 100%',
+                legendgroup='hex_full',
                 showlegend=True,
             ))
 
