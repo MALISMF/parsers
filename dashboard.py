@@ -311,7 +311,7 @@ fig.add_trace(go.Scattermapbox(
     mode="markers",
     marker=go.scattermapbox.Marker(size=12, color="#7fb3d3", opacity=0.8),
     name="Нет данных о загруженности",
-    showlegend=len(filtered_without) == 0,  # показываем всегда для стабильности
+    showlegend=len(filtered_without) == 0,
 ))
 
 fig.update_layout(
@@ -322,7 +322,6 @@ fig.update_layout(
     legend=dict(x=0.01, y=0.99, bgcolor=_legend_bg, font=dict(color=_legend_font_color), itemsizing="constant"),
 )
 
-# Обработка клика по карте для фильтра отелей
 ts_occ = load_occupancy_timeseries(all_data_dir, tuple(sorted(sel_cities)), tuple(sorted(sel_hotels)))
 
 # Подпись фильтров (переиспользуется ниже)
@@ -398,6 +397,7 @@ with st.container(border=True):
         st.caption(f"{_date_caption} · {_filter_caption}")
     else:
         st.caption(_date_caption)
+
 # ── Временная динамика ─────────────────────────────────────────────────────────
 if ts_occ.empty:
     st.info("Нет данных для графиков динамики.")
@@ -405,9 +405,98 @@ else:
     with st.container(border=True):
         st.markdown("### Временная динамика")
         fig_ts = make_subplots(specs=[[{"secondary_y": True}]])
-        fig_ts.add_trace(go.Scatter(x=ts_occ["date"], y=ts_occ["avg_occupancy_pct"], name="Загруженность, %", mode="lines+markers", line=dict(width=2, color="#3498db")), secondary_y=False)
-        fig_ts.add_trace(go.Scatter(x=ts_occ["date"], y=ts_occ["free_rooms_sum"], name="Свободных номеров (сумма)", mode="lines+markers", line=dict(width=2, color="#e67e22")), secondary_y=True)
-        fig_ts.update_layout(xaxis_title="Дата", hovermode="x unified", legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), margin=dict(t=50, b=40, l=55, r=55))
+
+        _ru_days_short = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]
+        ts_occ["ru_day"] = ts_occ["date"].dt.weekday.map(lambda i: _ru_days_short[i])
+
+        # Праздники — полное название для тултипа
+        _ru_holidays_full = {
+            "01-01": "Новый год", "01-02": "Новый год", "01-03": "Новый год",
+            "01-04": "Новый год", "01-05": "Новый год", "01-06": "Новый год",
+            "01-07": "Новый год", "01-08": "Новый год",
+            "02-23": "День защитника", "03-08": "8 марта", "05-01": "1 мая",
+            "05-09": "День Победы", "06-12": "День России",
+            "11-04": "Нар. единство", "12-31": "Новый год",
+        }
+        ts_occ["holiday"] = ts_occ["date"].dt.strftime("%m-%d").map(_ru_holidays_full)
+        ts_occ["holiday"] = ts_occ["holiday"].apply(lambda x: f" · {x}" if pd.notna(x) else "")
+
+        fig_ts.add_trace(go.Scatter(
+            x=ts_occ["date"], y=ts_occ["avg_occupancy_pct"],
+            name="Загруженность, %", mode="lines+markers",
+            line=dict(width=2, color="#3498db"),
+            customdata=ts_occ[["ru_day", "holiday"]].values,
+            hovertemplate="<b>%{x|%d.%m.%Y} · %{customdata[0]}%{customdata[1]}</b><br>Загруженность: <b>%{y:.1f}%</b><extra></extra>",
+        ), secondary_y=False)
+
+        fig_ts.add_trace(go.Scatter(
+            x=ts_occ["date"], y=ts_occ["free_rooms_sum"],
+            name="Свободных номеров (сумма)", mode="lines+markers",
+            line=dict(width=2, color="#e67e22"),
+            customdata=ts_occ[["ru_day", "holiday"]].values,
+            hovertemplate="Свободных номеров: <b>%{y:.0f}</b><extra></extra>",
+        ), secondary_y=True)
+
+        # Выходные — серые полосы
+        for d in ts_occ["date"]:
+            if d.weekday() >= 5:
+                fig_ts.add_vrect(
+                    x0=d - pd.Timedelta(hours=12),
+                    x1=d + pd.Timedelta(hours=12),
+                    fillcolor="rgba(150,150,150,0.25)",
+                    line_width=0,
+                    layer="below",
+                )
+
+        # Праздники — жёлтые пунктирные линии
+        _ru_holidays_short = {
+            "01-01": "НГ", "01-02": "НГ", "01-03": "НГ", "01-04": "НГ",
+            "01-05": "НГ", "01-06": "НГ", "01-07": "НГ", "01-08": "НГ",
+            "02-23": "ДЗ", "03-08": "8М", "05-01": "1М", "05-09": "ДП",
+            "06-12": "ДР", "11-04": "НЕ", "12-31": "НГ",
+        }
+        _holiday_legend_added = False
+        for d in ts_occ["date"]:
+            key = d.strftime("%m-%d")
+            if key in _ru_holidays_short:
+                fig_ts.add_vline(
+                    x=d,
+                    line_width=2,
+                    line_dash="dot",
+                    line_color="rgba(255,200,0,0.9)",
+                    layer="below",
+                )
+                _holiday_legend_added = True
+
+        # Легенда — выходные
+        fig_ts.add_trace(go.Scatter(
+            x=[None], y=[None], mode="markers",
+            marker=dict(size=12, color="rgba(150,150,150,0.4)", symbol="square"),
+            name="Выходные", hoverinfo="skip", showlegend=True,
+        ), secondary_y=False)
+
+        # Легенда — праздники (только если есть в данных)
+        if _holiday_legend_added:
+            fig_ts.add_trace(go.Scatter(
+                x=[None], y=[None], mode="lines",
+                line=dict(width=2, dash="dot", color="rgba(255,200,0,0.9)"),
+                name="Праздники", hoverinfo="skip", showlegend=True,
+            ), secondary_y=False)
+
+        fig_ts.update_layout(
+            xaxis_title="Дата",
+            hovermode="x unified",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1,
+                itemclick=False,
+                itemdoubleclick=False,
+            ),
+            margin=dict(t=50, b=40, l=55, r=55),
+        )
         fig_ts.update_yaxes(title_text="Загруженность, %", secondary_y=False)
         fig_ts.update_yaxes(title_text="Номеров / свободно, шт", secondary_y=True)
         st.plotly_chart(fig_ts, use_container_width=True, config={"scrollZoom": True})
