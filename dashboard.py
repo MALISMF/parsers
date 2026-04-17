@@ -167,8 +167,9 @@ if not all_csv_files:
 with st.sidebar:
     st.markdown("### Данные")
     choice_names = [p.name for p in all_csv_files]
-    selected_name = st.selectbox("Файл из all-data", choice_names, index=len(choice_names) - 1, help="По этому файлу строятся карта и таблица.")
-
+    choice_labels = [p.stem for p in all_csv_files]
+    selected_label = st.selectbox("Дата сбора данных", choice_labels, index=len(choice_labels) - 1, help="По этому срезу строятся карта и таблица.")
+    selected_name = choice_names[choice_labels.index(selected_label)]
 df = load_map_df(all_data_dir / selected_name)
 
 with st.sidebar:
