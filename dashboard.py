@@ -113,7 +113,7 @@ def load_occupancy_timeseries(all_data_dir: Path, cities: tuple = (), hotels: tu
     return out
 
 
-def build_calendar_heatmap(ts: pd.DataFrame, metric_col: str, title: str) -> go.Figure:
+def build_calendar_heatmap(ts: pd.DataFrame, metric_col: str, title: str, reverse_scale: bool = False) -> go.Figure:
     df = ts.copy()
     df["month"] = df["date"].dt.to_period("M")
     df["day"] = df["date"].dt.day
@@ -145,7 +145,7 @@ def build_calendar_heatmap(ts: pd.DataFrame, metric_col: str, title: str) -> go.
         z=matrix, x=list(range(1, 32)), y=month_labels,
         text=text_matrix, customdata=hover_matrix,
         texttemplate="%{text}", textfont={"size": 10},
-        colorscale=[[0.00,"#00e676"],[0.25,"#69f0ae"],[0.50,"#ffff00"],[0.75,"#ffab00"],[1.00,"#ff5252"]],
+        colorscale=[[0.00,"#ff5252"],[0.25,"#ffab00"],[0.50,"#ffff00"],[0.75,"#69f0ae"],[1.00,"#00e676"]] if reverse_scale else [[0.00,"#00e676"],[0.25,"#69f0ae"],[0.50,"#ffff00"],[0.75,"#ffab00"],[1.00,"#ff5252"]],
         zmin=0, zmax=100,
         colorbar=dict(title="%", thickness=12, len=0.8),
         hovertemplate="%{customdata}<extra></extra>",
@@ -270,7 +270,6 @@ filtered_with = filtered[filtered["has_data"]].copy()
 filtered_without = filtered[~filtered["has_data"]].copy()
 
 fig = go.Figure()
-
 
 # Подложка-бордер: отели без данных (рисуются первыми — лежат снизу)
 if not filtered_without.empty:
@@ -535,7 +534,7 @@ else:
         cal_metric = st.radio("Метрика", options=["avg_occupancy_pct", "avg_free_rooms_pct"], format_func=lambda x: "Загруженность, %" if x == "avg_occupancy_pct" else "Свободные места, %", horizontal=True)
         if cal_metric in ts_occ.columns:
             cal_title = "Средняя загруженность по дням, %" if cal_metric == "avg_occupancy_pct" else "Доля свободных мест по дням, %"
-            fig_cal = build_calendar_heatmap(ts_occ, cal_metric, cal_title)
+            fig_cal = build_calendar_heatmap(ts_occ, cal_metric, cal_title, reverse_scale=(cal_metric == "avg_free_rooms_pct"))
             st.plotly_chart(fig_cal, use_container_width=True, config={"scrollZoom": False})
             if _filter_caption:
                 st.caption(_filter_caption)
