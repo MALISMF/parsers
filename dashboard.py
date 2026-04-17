@@ -517,19 +517,21 @@ else:
 
 # ── Столбчатая диаграмма по городам ──────────────────────────────────────────
 with st.container(border=True):
-    st.markdown("### Загруженность номерного фонда по городам")
-    city_chart_mode = st.pills("Показать по городам:", options=["Общее кол-во мест", "Среднее кол-во мест"], default="Общее кол-во мест")
-    if city_chart_mode in (None, "Общее кол-во мест"):
+    st.markdown("### Свободные места по городам")
+    city_chart_mode = st.pills("Показать по городам:", options=["Сумма свободных мест", "Среднее свободных мест"], default="Сумма свободных мест")
+    if city_chart_mode in (None, "Сумма свободных мест"):
         df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].sum()
+        df_city = df_city.sort_values("avg_free_rooms", ascending=False)
         total_free = df_city["avg_free_rooms"].sum()
-        df_city["_pct_label"] = (df_city["avg_free_rooms"] / total_free * 100).map(lambda x: f"{x:.1f}%") if total_free else "0.0%"
-        fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city", text="_pct_label")
-        fig_city.update_traces(textposition="outside")
-        fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Сумма (avg_free_rooms)", margin=dict(t=30, b=40))
+        fig_city = px.bar(df_city, x="city", y="avg_free_rooms")
+        fig_city.update_traces(marker_color="#4a90d9")
+        fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Свободных мест (сумма, шт.)", margin=dict(t=30, b=40))
     else:
         df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].mean()
-        fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city")
-        fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Среднее (avg_free_rooms)", margin=dict(t=10, b=40))
+        df_city = df_city.sort_values("avg_free_rooms", ascending=False)
+        fig_city = px.bar(df_city, x="city", y="avg_free_rooms")
+        fig_city.update_traces(marker_color="#4a90d9")
+        fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Свободных мест (среднее, шт.)", margin=dict(t=10, b=40))
     st.plotly_chart(fig_city, use_container_width=True, config={"scrollZoom": False})
     if _filter_caption:
         st.caption(f"{_date_caption} · {_filter_caption}")
