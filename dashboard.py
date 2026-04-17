@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import streamlit as st
 from pathlib import Path
 from plotly.subplots import make_subplots
+import h3
 
 st.set_page_config(
     page_title="Загруженность СР · Иркутская область",
@@ -16,6 +17,11 @@ st.set_page_config(
 
 BASE = Path(__file__).parent
 
+_theme = st.get_option("theme.base")
+_is_dark = _theme == "dark"
+
+_legend_bg = "rgba(30,30,30,0.85)" if _is_dark else "rgba(255,255,255,0.85)"
+_legend_font_color = "#ffffff" if _is_dark else "#000000"
 
 def _rooms_per_hotel_series(part: pd.DataFrame) -> pd.Series:
     cols = []
@@ -152,6 +158,27 @@ def build_calendar_heatmap(ts: pd.DataFrame, metric_col: str, title: str) -> go.
         height=max(180, len(months) * cell_h + 120),
     )
     return fig
+
+def build_hexbin_layer(df_with_data: pd.DataFrame, resolution: int = 6):
+    df = df_with_data.copy()
+    df['h3_index'] = df.apply(lambda r: h3.latlng_to_cell(r['lat'], r['lon'], resolution), axis=1)
+    hex_df = df.groupby('h3_index').agg(
+        avg_occ=('avg_occupancy_pct', 'mean'),
+        count=('name', 'count'),
+    ).reset_index()
+    features = []
+    for _, row in hex_df.iterrows():
+        boundary = h3.cell_to_boundary(row['h3_index'])
+        coords = [[lng, lat] for lat, lng in boundary]
+        coords.append(coords[0])
+        features.append({
+            'type': 'Feature',
+            'id': row['h3_index'],
+            'properties': {'avg_occ': round(row['avg_occ'], 1), 'count': int(row['count'])},
+            'geometry': {'type': 'Polygon', 'coordinates': [coords]},
+        })
+    geojson = {'type': 'FeatureCollection', 'features': features}
+    return hex_df, geojson
 
 
 # ── Инициализация ─────────────────────────────────────────────────────────────
@@ -292,7 +319,7 @@ fig.update_layout(
     margin={"t": 0, "b": 0, "l": 0, "r": 0},
     dragmode="pan",
     height=650,
-    legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.8)", itemsizing="constant"),
+    legend=dict(x=0.01, y=0.99, bgcolor=_legend_bg, font=dict(color=_legend_font_color), itemsizing="constant"),
 )
 
 # Обработка клика по карте для фильтра отелей
@@ -309,8 +336,68 @@ _filter_caption = ("Фильтр: " + " · ".join(_filter_parts)) if _filter_par
 # ── Карта ─────────────────────────────────────────────────────────────────────
 with st.container(border=True):
     st.markdown("### Карта")
-    st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True}, key="map_chart")
+    map_mode = st.radio("Режим карты", options=["Точки", "Сетчатая карта"], horizontal=True, label_visibility="collapsed")
+    hex_resolution = None
+    if map_mode == "Сетчатая карта":
+        hex_resolution = st.slider("Детализация сетки", min_value=4, max_value=7, value=4, help="4 — крупные зоны, 7 — мелкие")
 
+    if map_mode == "Сетчатая карта" and not filtered_with.empty:
+        hex_df, geojson = build_hexbin_layer(filtered_with, resolution=hex_resolution)
+        fig_hex = go.Figure(go.Choroplethmapbox(
+            geojson=geojson,
+            locations=hex_df['h3_index'],
+            z=hex_df['avg_occ'],
+            featureidkey='id',
+            colorscale=[[0.00,'#00e676'],[0.25,'#69f0ae'],[0.50,'#ffff00'],[0.75,'#ffab00'],[1.00,'#ff5252']],
+            zmin=0, zmax=100,
+            marker_opacity=0.75,
+            marker_line_width=0.5,
+            colorbar=dict(title='Загруженность %', thickness=12, len=0.7),
+            customdata=hex_df[['avg_occ', 'count']].values,
+            hovertemplate='<b>Средняя загруженность:</b> %{customdata[0]:.1f}%<br><b>Объектов:</b> %{customdata[1]}<extra></extra>',
+        ))
+
+        # Точки поверх гексагонов
+        _full = filtered_with[filtered_with['avg_occupancy_pct'] >= 100].copy()
+        _free = filtered_with[filtered_with['avg_occupancy_pct'] < 100].copy()
+
+        if not _free.empty:
+            fig_hex.add_trace(go.Scattermapbox(
+                lat=_free['lat'], lon=_free['lon'],
+                mode='markers',
+                marker=go.scattermapbox.Marker(size=8, color='#111111', opacity=0.9),
+                customdata=_free[['hover']].values,
+                hovertemplate='%{customdata[0]}<extra></extra>',
+                name='Есть свободные места',
+                showlegend=True,
+            ))
+
+        if not _full.empty:
+            fig_hex.add_trace(go.Scattermapbox(
+                lat=_full['lat'], lon=_full['lon'],
+                mode='markers',
+                marker=go.scattermapbox.Marker(size=8, color='#ffffff', opacity=0.9),
+                customdata=_full[['hover']].values,
+                hovertemplate='%{customdata[0]}<extra></extra>',
+                name='Загруженность 100%',
+                showlegend=True,
+            ))
+
+        fig_hex.update_layout(
+            mapbox=dict(style='open-street-map', zoom=5.5, center={'lat': 54.0, 'lon': 103.5}),
+            margin={'t': 0, 'b': 0, 'l': 0, 'r': 0},
+            height=650,
+            legend=dict(x=0.01, y=0.99, bgcolor=_legend_bg, font=dict(color=_legend_font_color), itemsizing='constant'),
+        )
+        st.plotly_chart(fig_hex, use_container_width=True, config={'scrollZoom': True}, key='map_hex')
+    else:
+        st.plotly_chart(fig, use_container_width=True, config={'scrollZoom': True}, key='map_chart')
+
+    _date_caption = f"Данные на: {Path(selected_name).stem}"
+    if _filter_caption:
+        st.caption(f"{_date_caption} · {_filter_caption}")
+    else:
+        st.caption(_date_caption)
 # ── Временная динамика ─────────────────────────────────────────────────────────
 if ts_occ.empty:
     st.info("Нет данных для графиков динамики.")
@@ -355,6 +442,10 @@ with st.container(border=True):
         fig_city = px.bar(df_city, x="city", y="avg_free_rooms", color="city")
         fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Среднее (avg_free_rooms)", margin=dict(t=10, b=40))
     st.plotly_chart(fig_city, use_container_width=True, config={"scrollZoom": False})
+    if _filter_caption:
+        st.caption(f"{_date_caption} · {_filter_caption}")
+    else:
+        st.caption(_date_caption)
 
 # ── Таблица ───────────────────────────────────────────────────────────────────
 with st.container(border=True):
