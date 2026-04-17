@@ -271,9 +271,48 @@ filtered_without = filtered[~filtered["has_data"]].copy()
 
 fig = go.Figure()
 
-# Слой 1: отели с данными — цвет = загруженность
+
+# Подложка-бордер: отели без данных (рисуются первыми — лежат снизу)
+if not filtered_without.empty:
+    fig.add_trace(go.Scattermapbox(
+        lat=filtered_without["lat"],
+        lon=filtered_without["lon"],
+        mode="markers",
+        marker=go.scattermapbox.Marker(size=16, color="#333333", opacity=0.8),
+        hoverinfo="skip",
+        legendgroup="without_data",
+        showlegend=False,
+    ))
+
+# Слой: отели без данных — синие
+if not filtered_without.empty:
+    fig.add_trace(go.Scattermapbox(
+        lat=filtered_without["lat"],
+        lon=filtered_without["lon"],
+        mode="markers",
+        marker=go.scattermapbox.Marker(size=12, color="#7fb3d3", opacity=0.8),
+        customdata=filtered_without[["hover", "name"]].values,
+        hovertemplate="%{customdata[0]}<extra></extra>",
+        name="Нет данных о загруженности",
+        legendgroup="without_data",
+        showlegend=True,
+    ))
+
+# Подложка-бордер: отели с данными (рисуются после — лежат сверху)
 if not filtered_with.empty:
     filtered_with["occ_fill"] = filtered_with["avg_occupancy_pct"].fillna(0)
+    fig.add_trace(go.Scattermapbox(
+        lat=filtered_with["lat"],
+        lon=filtered_with["lon"],
+        mode="markers",
+        marker=go.scattermapbox.Marker(size=16, color="#333333", opacity=0.85),
+        hoverinfo="skip",
+        legendgroup="with_data",
+        showlegend=False,
+    ))
+
+# Слой: отели с данными — цвет = загруженность
+if not filtered_with.empty:
     fig.add_trace(go.Scattermapbox(
         lat=filtered_with["lat"],
         lon=filtered_with["lon"],
@@ -289,20 +328,8 @@ if not filtered_with.empty:
         customdata=filtered_with[["hover", "name"]].values,
         hovertemplate="%{customdata[0]}<extra></extra>",
         name="Объекты с данными",
+        legendgroup="with_data",
         showlegend=False,
-    ))
-
-# Слой 2: отели без данных — синие
-if not filtered_without.empty:
-    fig.add_trace(go.Scattermapbox(
-        lat=filtered_without["lat"],
-        lon=filtered_without["lon"],
-        mode="markers",
-        marker=go.scattermapbox.Marker(size=12, color="#7fb3d3", opacity=0.8),
-        customdata=filtered_without[["hover", "name"]].values,
-        hovertemplate="%{customdata[0]}<extra></extra>",
-        name="Нет данных о загруженности",
-        showlegend=True,
     ))
 
 # Всегда добавляем легенду "Нет данных" (невидимый маркер если таких нет)
@@ -311,6 +338,7 @@ fig.add_trace(go.Scattermapbox(
     mode="markers",
     marker=go.scattermapbox.Marker(size=12, color="#7fb3d3", opacity=0.8),
     name="Нет данных о загруженности",
+    legendgroup="without_data",
     showlegend=len(filtered_without) == 0,
 ))
 
