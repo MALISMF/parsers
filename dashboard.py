@@ -200,6 +200,48 @@ with st.sidebar:
 df = load_map_df(all_data_dir / selected_name)
 
 with st.sidebar:
+    st.markdown("### Навигация")
+    st.markdown("""
+<style>
+.nav-btn {
+    display: block;
+    width: 100%;
+    padding: 7px 12px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    border: 1px solid rgba(128,128,128,0.3);
+    background: transparent;
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: 0.9em;
+    transition: background 0.15s, border-color 0.15s;
+    cursor: pointer;
+}
+.nav-btn:hover {
+    background: rgba(128,128,128,0.15);
+    border-color: rgba(128,128,128,0.6);
+    text-decoration: none !important;
+    color: inherit !important;
+}
+.nav-btn:visited {
+    color: inherit !important;
+}
+.nav-anchor {
+    display: block;
+    position: relative;
+    top: -80px;
+    visibility: hidden;
+}
+</style>
+<a class="nav-btn" href="#map">Карта</a>
+<a class="nav-btn" href="#timeseries">Временная динамика</a>
+<a class="nav-btn" href="#heatmap">Тепловая карта</a>
+<a class="nav-btn" href="#weekday">По дням недели</a>
+<a class="nav-btn" href="#cities">По городам</a>
+<a class="nav-btn" href="#table">Данные</a>
+""", unsafe_allow_html=True)
+
+with st.sidebar:
     st.markdown("### Фильтры")
     cities = sorted(df["city"].dropna().unique())
     sel_cities = st.multiselect("Город", cities, default=cities)
@@ -360,6 +402,7 @@ if sel_hotels and len(sel_hotels) < len(all_hotels_in_cities):
 _filter_caption = ("Фильтр: " + " · ".join(_filter_parts)) if _filter_parts else ""
 
 # ── Карта ─────────────────────────────────────────────────────────────────────
+st.markdown('<a class="nav-anchor" id="map"></a>', unsafe_allow_html=True)
 with st.container(border=True):
     st.markdown("### Карта")
     _date_caption = f"Данные на: {Path(selected_name).stem}"
@@ -393,7 +436,7 @@ with st.container(border=True):
             fig_hex.add_trace(go.Scattermapbox(
                 lat=_free['lat'], lon=_free['lon'],
                 mode='markers',
-                marker=go.scattermapbox.Marker(size=10, color='#ffffff', opacity=0.85),
+                marker=go.scattermapbox.Marker(size=10, color='#333333', opacity=0.85),
                 hoverinfo='skip',
                 legendgroup='hex_free',
                 showlegend=False,
@@ -443,6 +486,7 @@ with st.container(border=True):
         st.caption(_filter_caption)
 
 # ── Временная динамика ─────────────────────────────────────────────────────────
+st.markdown('<a class="nav-anchor" id="timeseries"></a>', unsafe_allow_html=True)
 if ts_occ.empty:
     st.info("Нет данных для графиков динамики.")
 else:
@@ -547,6 +591,7 @@ else:
         if _filter_caption:
             st.caption(_filter_caption)
 
+    st.markdown('<a class="nav-anchor" id="heatmap"></a>', unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("### Тепловая карта загруженности")
         cal_metric = st.radio("Метрика", options=["avg_occupancy_pct", "avg_free_rooms_pct"], format_func=lambda x: "Загруженность, %" if x == "avg_occupancy_pct" else "Свободные места, %", horizontal=True)
@@ -559,7 +604,50 @@ else:
         else:
             st.info("Недостаточно данных для построения тепловой карты.")
 
+# ── Загруженность по дням недели ─────────────────────────────────────────────
+st.markdown('<a class="nav-anchor" id="weekday"></a>', unsafe_allow_html=True)
+if not ts_occ.empty:
+    with st.container(border=True):
+        st.markdown("### Загруженность по дням недели")
+        if _filter_caption:
+            st.caption(_filter_caption)
+
+        _ru_days_full = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+        dow_df = (
+            ts_occ.assign(weekday=ts_occ["date"].dt.weekday)
+            .groupby("weekday", as_index=False)["avg_occupancy_pct"]
+            .agg(mean="mean", count="count")
+        )
+        dow_df["day_label"] = dow_df["weekday"].map(lambda i: _ru_days_full[i])
+        dow_df["is_weekend"] = dow_df["weekday"] >= 5
+
+        fig_dow = go.Figure(go.Bar(
+            x=dow_df["day_label"],
+            y=dow_df["mean"].round(1),
+            marker_color=dow_df["is_weekend"].map({True: "#e67e22", False: "#3498db"}),
+            text=dow_df["mean"].round(1).astype(str) + "%",
+            textposition="outside",
+            customdata=dow_df["count"].values,
+            hovertemplate="<b>%{x}</b><br>Средняя загруженность: <b>%{y:.1f}%</b><br>Наблюдений: <b>%{customdata}</b><extra></extra>",
+            showlegend=False,
+        ))
+
+        # Легенда вручную
+        fig_dow.add_trace(go.Bar(x=[None], y=[None], marker_color="#3498db", name="Будни", showlegend=True))
+        fig_dow.add_trace(go.Bar(x=[None], y=[None], marker_color="#e67e22", name="Выходные", showlegend=True))
+
+        fig_dow.update_layout(
+            xaxis=dict(categoryorder="array", categoryarray=_ru_days_full),
+            yaxis=dict(title="Средняя загруженность, %", range=[0, max(dow_df["mean"].max() * 1.2, 10)]),
+            showlegend=True,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            margin=dict(t=50, b=40, l=55, r=20),
+            bargap=0.3,
+        )
+        st.plotly_chart(fig_dow, use_container_width=True, config={"scrollZoom": False})
+
 # ── Столбчатая диаграмма по городам ──────────────────────────────────────────
+st.markdown('<a class="nav-anchor" id="cities"></a>', unsafe_allow_html=True)
 with st.container(border=True):
     st.markdown("### Свободные места по городам")
     st.caption(_date_caption)
@@ -582,6 +670,7 @@ with st.container(border=True):
         st.caption(_filter_caption)
 
 # ── Таблица ───────────────────────────────────────────────────────────────────
+st.markdown('<a class="nav-anchor" id="table"></a>', unsafe_allow_html=True)
 with st.container(border=True):
     st.markdown("### Данные")
     table_mode = st.radio(
