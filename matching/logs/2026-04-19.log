@@ -1,0 +1,27 @@
+2026-04-19 09:54:45 [INFO] __main__: Загружено существующих матчей: 46
+2026-04-19 09:54:45 [WARNING] __main__: Матч пропал из результатов: 'Гостиничный Комплекс Русь' ↔ 'Гостиница "Русь"'
+2026-04-19 09:54:45 [INFO] __main__: Сохранено матчей: 46 -> /home/runner/work/parsers/parsers/matching/match-results/matches.csv
+2026-04-19 09:54:45 [INFO] __main__: Начало процесса слияния каталогов...
+2026-04-19 09:54:45 [INFO] __main__: Файл прочитан: matches.csv (строк: 46)
+2026-04-19 09:54:45 [INFO] __main__: Файл прочитан: hotels.csv (строк: 199)
+2026-04-19 09:54:45 [INFO] __main__: Файл прочитан: hotels.csv (строк: 70)
+2026-04-19 09:54:45 [INFO] __main__: Обработка найденных совпадений из matches.csv
+2026-04-19 09:54:45 [INFO] __main__: --- ИТОГО ---
+2026-04-19 09:54:45 [INFO] __main__: Всего строк в каталоге: 225
+2026-04-19 09:54:45 [INFO] __main__: Совпадений (matched): 46
+2026-04-19 09:54:45 [INFO] __main__: Только Ostrovok: 154
+2026-04-19 09:54:45 [INFO] __main__: Только Tvil: 25
+2026-04-19 09:54:45 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/matching/merge-results/matched-catalog.csv
+2026-04-19 09:54:45 [INFO] __main__: Используемый каталог: /home/runner/work/parsers/parsers/matching/merge-results/matched-catalog.csv
+2026-04-19 09:54:45 [INFO] __main__: Статистика Ostrovok: /home/runner/work/parsers/parsers/ostrovok-data/daily/statistics/2026-04-19.csv
+2026-04-19 09:54:45 [INFO] __main__: Статистика Tvil: /home/runner/work/parsers/parsers/tvil-data/daily/statistics/2026-04-19.csv
+2026-04-19 09:54:45 [INFO] __main__: Начало процесса объединения ежедневной статистики...
+2026-04-19 09:54:45 [INFO] __main__: Файл прочитан: matched-catalog.csv (строк: 225)
+2026-04-19 09:54:45 [INFO] __main__: Файл прочитан: 2026-04-19.csv (строк: 157)
+2026-04-19 09:54:45 [INFO] __main__: Файл прочитан: 2026-04-19.csv (строк: 59)
+2026-04-19 09:54:45 [INFO] __main__: --- ИТОГО СТАТИСТИКА ---
+2026-04-19 09:54:45 [INFO] __main__: Всего строк сохранено: 225
+2026-04-19 09:54:45 [INFO] __main__: Оба источника данных: 33
+2026-04-19 09:54:45 [INFO] __main__: Только Ostrovok: 124
+2026-04-19 09:54:45 [INFO] __main__: Только Tvil: 27
+2026-04-19 09:54:45 [INFO] __main__: Результат сохранен в: /home/runner/work/parsers/parsers/all-data/2026-04-19.csv
