@@ -98,6 +98,9 @@ class DailyStatsMerger:
 
         for cat in catalog:
             merged_id = self._norm(cat.get("merged_id"))
+            match_type = self._norm(cat.get("match_type"))
+            if match_type in {"address", "name"}:
+                match_type = "matched"
             city = self._norm(cat.get("city"))
             name = self._norm(cat.get("name"))
             address = self._norm(cat.get("address"))
@@ -129,6 +132,7 @@ class DailyStatsMerger:
 
             output_rows.append({
                 "merged_id": merged_id,
+                "match-type": match_type,
                 "city": city,
                 "name": name,
                 "address": address,
@@ -165,7 +169,7 @@ class DailyStatsMerger:
     def save_results(self, rows, output_path):
         """Записывает итоговый список строк в файл и выводит статистику."""
         fieldnames = [
-            "merged_id", "city", "name", "address",
+            "merged_id", "match-type", "city", "name", "address",
             "ostrovok_rooms_number", "tvil_rooms_number",
             "ostrovok_free_rooms", "tvil_free_rooms",
             "min_free_rooms", "avg_free_rooms", "max_free_rooms",
