@@ -132,7 +132,7 @@ class DailyStatsMerger:
 
             output_rows.append({
                 "merged_id": merged_id,
-                "match-type": match_type,
+                "match_type": match_type,
                 "city": city,
                 "name": name,
                 "address": address,
@@ -169,7 +169,7 @@ class DailyStatsMerger:
     def save_results(self, rows, output_path):
         """Записывает итоговый список строк в файл и выводит статистику."""
         fieldnames = [
-            "merged_id", "match-type", "city", "name", "address",
+            "merged_id", "match_type", "city", "name", "address",
             "ostrovok_rooms_number", "tvil_rooms_number",
             "ostrovok_free_rooms", "tvil_free_rooms",
             "min_free_rooms", "avg_free_rooms", "max_free_rooms",
