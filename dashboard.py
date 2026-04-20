@@ -700,8 +700,6 @@ else:
                 y=1.02,
                 xanchor="right",
                 x=1,
-                itemclick=False,
-                itemdoubleclick=False,
             ),
             margin=dict(t=50, b=40, l=55, r=55),
         )
