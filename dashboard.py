@@ -46,6 +46,90 @@ def _rooms_total(row):
     return int(max(vals)) if vals else None
 
 
+def _prepare_source_view(df: pd.DataFrame, source_mode: str) -> pd.DataFrame:
+    view = df.copy()
+    num_cols = [
+        "avg_occupancy_pct", "avg_free_rooms_pct", "avg_free_rooms", "avg_capacity", "min_price",
+        "ostrovok_occupancy_pct", "tvil_occupancy_pct",
+        "ostrovok_free_rooms_pct", "tvil_free_rooms_pct",
+        "ostrovok_free_rooms", "tvil_free_rooms",
+        "ostrovok_rooms_number", "tvil_rooms_number",
+        "ostrovok_capacity", "tvil_capacity",
+        "ostrovok_min_price", "tvil_min_price",
+    ]
+    for col in num_cols:
+        if col in view.columns:
+            view[col] = pd.to_numeric(view[col], errors="coerce")
+
+    has_ostrovok = (
+        view.get("ostrovok_rooms_number", pd.Series(index=view.index, dtype="float64")).notna()
+        | view.get("ostrovok_free_rooms", pd.Series(index=view.index, dtype="float64")).notna()
+    )
+    has_tvil = (
+        view.get("tvil_rooms_number", pd.Series(index=view.index, dtype="float64")).notna()
+        | view.get("tvil_free_rooms", pd.Series(index=view.index, dtype="float64")).notna()
+    )
+
+    if source_mode == "matched_only":
+        match_col = "match-type" if "match-type" in view.columns else "match_type"
+        if match_col in view.columns:
+            view = view[view[match_col].astype(str).str.strip().eq("matched")].copy()
+        view["occ_display"] = view.get("avg_occupancy_pct")
+        view["free_rooms_pct_display"] = view.get("avg_free_rooms_pct")
+        view["free_rooms_display"] = view.get("avg_free_rooms")
+        view["rooms_total_display"] = _rooms_per_hotel_series(view)
+        view["capacity_display"] = view.get("avg_capacity")
+        view["min_price_display"] = view.get("min_price")
+    elif source_mode == "ostrovok":
+        view = view[has_ostrovok].copy()
+        view["occ_display"] = view.get("ostrovok_occupancy_pct")
+        view["free_rooms_pct_display"] = view.get("ostrovok_free_rooms_pct")
+        view["free_rooms_display"] = view.get("ostrovok_free_rooms")
+        view["rooms_total_display"] = view.get("ostrovok_rooms_number")
+        view["capacity_display"] = view.get("ostrovok_capacity")
+        view["min_price_display"] = view.get("ostrovok_min_price")
+    elif source_mode == "tvil":
+        view = view[has_tvil].copy()
+        view["occ_display"] = view.get("tvil_occupancy_pct")
+        view["free_rooms_pct_display"] = view.get("tvil_free_rooms_pct")
+        view["free_rooms_display"] = view.get("tvil_free_rooms")
+        view["rooms_total_display"] = view.get("tvil_rooms_number")
+        view["capacity_display"] = view.get("tvil_capacity")
+        view["min_price_display"] = view.get("tvil_min_price")
+    else:
+        view["occ_display"] = view.get("avg_occupancy_pct")
+        view["free_rooms_pct_display"] = view.get("avg_free_rooms_pct")
+        view["free_rooms_display"] = view.get("avg_free_rooms")
+        view["rooms_total_display"] = _rooms_per_hotel_series(view)
+        view["capacity_display"] = view.get("avg_capacity")
+        view["min_price_display"] = view.get("min_price")
+
+    if source_mode == "all":
+        source_values = []
+        has_ostrovok = has_ostrovok.reindex(view.index, fill_value=False)
+        has_tvil = has_tvil.reindex(view.index, fill_value=False)
+        for idx in view.index:
+            o, t = bool(has_ostrovok.loc[idx]), bool(has_tvil.loc[idx])
+            if o and t:
+                source_values.append("Ostrovok, Tvil")
+            elif o:
+                source_values.append("Ostrovok")
+            elif t:
+                source_values.append("Tvil")
+            else:
+                source_values.append("—")
+        view["source_label"] = source_values
+    elif source_mode == "ostrovok":
+        view["source_label"] = "Ostrovok"
+    elif source_mode == "tvil":
+        view["source_label"] = "Tvil"
+    elif source_mode == "matched_only":
+        view["source_label"] = "Объединенные"
+    else:
+        view["source_label"] = "—"
+    return view
+
+
 @st.cache_data(ttl=300)
 def load_map_df(all_data_path: Path) -> pd.DataFrame:
     if not all_data_path.is_file():
@@ -68,6 +152,18 @@ def load_map_df(all_data_path: Path) -> pd.DataFrame:
         "avg_free_rooms",
         "ostrovok_rooms_number",
         "tvil_rooms_number",
+        "ostrovok_occupancy_pct",
+        "tvil_occupancy_pct",
+        "ostrovok_free_rooms_pct",
+        "tvil_free_rooms_pct",
+        "ostrovok_free_rooms",
+        "tvil_free_rooms",
+        "ostrovok_capacity",
+        "tvil_capacity",
+        "avg_capacity",
+        "ostrovok_min_price",
+        "tvil_min_price",
+        "min_price",
     ]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
@@ -79,7 +175,7 @@ def load_map_df(all_data_path: Path) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=300)
-def load_occupancy_timeseries(all_data_dir: Path, cities: tuple = (), hotels: tuple = ()) -> pd.DataFrame:
+def load_occupancy_timeseries(all_data_dir: Path, cities: tuple = (), hotels: tuple = (), source_mode: str = "all") -> pd.DataFrame:
     rows = []
     for p in sorted(all_data_dir.glob("*.csv")):
         try:
@@ -90,21 +186,22 @@ def load_occupancy_timeseries(all_data_dir: Path, cities: tuple = (), hotels: tu
             part = pd.read_csv(p, encoding="utf-8-sig")
         except Exception:
             continue
-        if "avg_occupancy_pct" not in part.columns:
-            continue
         if cities and "city" in part.columns:
             part = part[part["city"].isin(cities)]
         if hotels and "name" in part.columns:
             part = part[part["name"].isin(hotels)]
+        part = _prepare_source_view(part, source_mode)
+        if "occ_display" not in part.columns:
+            continue
         if part.empty:
             continue
-        part["avg_occupancy_pct"] = pd.to_numeric(part["avg_occupancy_pct"], errors="coerce")
-        m = part["avg_occupancy_pct"].mean()
+        part["occ_display"] = pd.to_numeric(part["occ_display"], errors="coerce")
+        m = part["occ_display"].mean()
         if pd.isna(m):
             continue
-        room_sum = float(_rooms_per_hotel_series(part).sum(skipna=True))
-        free_sum = float(pd.to_numeric(part["avg_free_rooms"], errors="coerce").sum(skipna=True)) if "avg_free_rooms" in part.columns else 0.0
-        free_pct_mean = float(pd.to_numeric(part["avg_free_rooms_pct"], errors="coerce").mean(skipna=True)) if "avg_free_rooms_pct" in part.columns else round(100.0 - float(m), 1)
+        room_sum = float(pd.to_numeric(part["rooms_total_display"], errors="coerce").sum(skipna=True)) if "rooms_total_display" in part.columns else 0.0
+        free_sum = float(pd.to_numeric(part["free_rooms_display"], errors="coerce").sum(skipna=True)) if "free_rooms_display" in part.columns else 0.0
+        free_pct_mean = float(pd.to_numeric(part["free_rooms_pct_display"], errors="coerce").mean(skipna=True)) if "free_rooms_pct_display" in part.columns else round(100.0 - float(m), 1)
         rows.append({"date": day, "avg_occupancy_pct": float(m), "avg_free_rooms_pct": free_pct_mean, "total_rooms_sum": room_sum, "free_rooms_sum": free_sum})
     if not rows:
         return pd.DataFrame()
@@ -163,7 +260,7 @@ def build_hexbin_layer(df_with_data: pd.DataFrame, resolution: int = 6):
     df = df_with_data.copy()
     df['h3_index'] = df.apply(lambda r: h3.latlng_to_cell(r['lat'], r['lon'], resolution), axis=1)
     hex_df = df.groupby('h3_index').agg(
-        avg_occ=('avg_occupancy_pct', 'mean'),
+        avg_occ=('occ_display', 'mean'),
         count=('name', 'count'),
     ).reset_index()
     features = []
@@ -243,14 +340,22 @@ with st.sidebar:
 
 with st.sidebar:
     st.markdown("### Фильтры")
+    source_label = st.selectbox("Источник", options=["Всё", "Ostrovok", "Tvil", "Объединенные"], index=0)
+    source_mode = {"Всё": "all", "Ostrovok": "ostrovok", "Tvil": "tvil", "Объединенные": "matched_only"}[source_label]
+    df = _prepare_source_view(df, source_mode)
+
     cities = sorted(df["city"].dropna().unique())
     sel_cities = st.multiselect("Город", cities, default=cities)
 
     all_hotels_in_cities = sorted(df[df["city"].isin(sel_cities)]["name"].dropna().unique()) if sel_cities else []
     sel_hotels = st.multiselect("Объект размещения", all_hotels_in_cities, default=[], placeholder="Все объекты")
 
-    min_val = int(math.floor(df['avg_occupancy_pct'].min()))
-    max_val = int(math.ceil(df['avg_occupancy_pct'].max()))
+    occ_series = pd.to_numeric(df["occ_display"], errors="coerce")
+    if occ_series.notna().any():
+        min_val = int(math.floor(occ_series.min()))
+        max_val = int(math.ceil(occ_series.max()))
+    else:
+        min_val, max_val = 0, 100
     if min_val == max_val:
         max_val += 1
     occ_min, occ_max = st.slider("Загруженность, %", min_value=min_val, max_value=max_val, value=(min_val, max_val))
@@ -261,10 +366,10 @@ filtered = filtered_by_city.copy()
 if sel_hotels:
     filtered = filtered[filtered["name"].isin(sel_hotels)]
 filtered = filtered[
-    filtered["avg_occupancy_pct"].isna() | filtered["avg_occupancy_pct"].between(occ_min, occ_max)
+    filtered["occ_display"].isna() | filtered["occ_display"].between(occ_min, occ_max)
 ].copy()
 filtered_by_city = filtered_by_city[
-    filtered_by_city["avg_occupancy_pct"].isna() | filtered_by_city["avg_occupancy_pct"].between(occ_min, occ_max)
+    filtered_by_city["occ_display"].isna() | filtered_by_city["occ_display"].between(occ_min, occ_max)
 ].copy()
 
 def _format_int(x) -> str:
@@ -275,35 +380,43 @@ def _format_int(x) -> str:
     except (TypeError, ValueError):
         return "—"
 
-rooms_total_filtered = float(_rooms_per_hotel_series(filtered).sum(skipna=True)) if not filtered.empty else float("nan")
-free_total_filtered = float(pd.to_numeric(filtered["avg_free_rooms"], errors="coerce").sum(skipna=True)) if not filtered.empty and "avg_free_rooms" in filtered.columns else float("nan")
+rooms_total_filtered = float(pd.to_numeric(filtered["rooms_total_display"], errors="coerce").sum(skipna=True)) if not filtered.empty and "rooms_total_display" in filtered.columns else float("nan")
+free_total_filtered = float(pd.to_numeric(filtered["free_rooms_display"], errors="coerce").sum(skipna=True)) if not filtered.empty and "free_rooms_display" in filtered.columns else float("nan")
 
 with st.container(border=True):
     c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("Отелей на карте", len(filtered))
-    c2.metric("Средняя загруженность", f"{filtered['avg_occupancy_pct'].mean():.1f}%" if not filtered.empty else "—")
-    c3.metric("Среднее свободных мест, %", f"{filtered['avg_free_rooms_pct'].mean():.1f}%" if not filtered.empty else "—")
+    c2.metric("Средняя загруженность", f"{filtered['occ_display'].mean():.1f}%" if not filtered.empty else "—")
+    c3.metric("Среднее свободных мест, %", f"{filtered['free_rooms_pct_display'].mean():.1f}%" if not filtered.empty else "—")
     c4.metric("Всего номеров", _format_int(rooms_total_filtered))
     c5.metric("Свободных номеров", _format_int(free_total_filtered))
 
 # Цвет: синий для отелей без данных, иначе шкала загруженности
-filtered["occ_display"] = filtered["avg_occupancy_pct"]
-filtered["has_data"] = filtered["avg_occupancy_pct"].notna()
+filtered["has_data"] = filtered["occ_display"].notna()
 
 filtered["hover"] = (
     "<b>" + filtered["name"].fillna("") + "</b><br>"
     + filtered["city"].fillna("") + "<br>"
+    + "Источник: <b>"
+    + filtered["source_label"].fillna("—")
+    + "</b><br>"
     + "Свободных номеров: <b>"
-    + filtered["avg_free_rooms"].apply(lambda x: f"{int(round(x))} шт." if pd.notna(x) else "нет данных")
+    + filtered["free_rooms_display"].apply(lambda x: f"{int(round(x))} шт." if pd.notna(x) else "нет данных")
     + "</b><br>"
     + "Номерной фонд: <b>"
-    + filtered.apply(lambda row: f"{_rooms_total(row)} шт." if _rooms_total(row) is not None else "нет данных", axis=1)
+    + filtered["rooms_total_display"].apply(lambda x: f"{int(round(x))} шт." if pd.notna(x) else "нет данных")
     + "</b><br>"
     + "Свободно: <b>"
-    + filtered["avg_free_rooms_pct"].apply(lambda x: f"{x:.1f}%" if pd.notna(x) else "нет данных")
+    + filtered["free_rooms_pct_display"].apply(lambda x: f"{x:.1f}%" if pd.notna(x) else "нет данных")
     + "</b><br>"
     + "Загружено: <b>"
-    + filtered["avg_occupancy_pct"].apply(lambda x: f"{x:.1f}%" if pd.notna(x) else "нет данных")
+    + filtered["occ_display"].apply(lambda x: f"{x:.1f}%" if pd.notna(x) else "нет данных")
+    + "</b><br>"
+    + "Минимальная цена: <b>"
+    + filtered["min_price_display"].apply(lambda x: f"{int(round(x))} руб." if pd.notna(x) else "нет данных")
+    + "</b><br>"
+    + "Вместимость (доступные места): <b>"
+    + filtered["capacity_display"].apply(lambda x: f"{int(round(x))} мест" if pd.notna(x) else "нет данных")
     + "</b>"
 )
 
@@ -341,7 +454,7 @@ if not filtered_without.empty:
 
 # Подложка-бордер: отели с данными (рисуются после — лежат сверху)
 if not filtered_with.empty:
-    filtered_with["occ_fill"] = filtered_with["avg_occupancy_pct"].fillna(0)
+    filtered_with["occ_fill"] = filtered_with["occ_display"].fillna(0)
     fig.add_trace(go.Scattermapbox(
         lat=filtered_with["lat"],
         lon=filtered_with["lon"],
@@ -391,7 +504,12 @@ fig.update_layout(
     legend=dict(x=0.01, y=0.99, bgcolor=_legend_bg, font=dict(color=_legend_font_color), itemsizing="constant"),
 )
 
-ts_occ = load_occupancy_timeseries(all_data_dir, tuple(sorted(sel_cities)), tuple(sorted(sel_hotels)))
+ts_occ = load_occupancy_timeseries(
+    all_data_dir,
+    tuple(sorted(sel_cities)),
+    tuple(sorted(sel_hotels)),
+    source_mode=source_mode,
+)
 
 # Подпись фильтров (переиспользуется ниже)
 _filter_parts = []
@@ -399,6 +517,8 @@ if sel_cities and len(sel_cities) < len(cities):
     _filter_parts.append(f"Города: {', '.join(sel_cities)}")
 if sel_hotels and len(sel_hotels) < len(all_hotels_in_cities):
     _filter_parts.append(f"Объекты: {', '.join(sel_hotels)}")
+if source_mode != "all":
+    _filter_parts.append(f"Источник: {source_label}")
 _filter_caption = ("Фильтр: " + " · ".join(_filter_parts)) if _filter_parts else ""
 
 # ── Карта ─────────────────────────────────────────────────────────────────────
@@ -429,8 +549,8 @@ with st.container(border=True):
         ))
 
         # Точки поверх гексагонов
-        _full = filtered_with[filtered_with['avg_occupancy_pct'] >= 100].copy()
-        _free = filtered_with[filtered_with['avg_occupancy_pct'] < 100].copy()
+        _free = filtered_with[filtered_with['occ_display'] < 100].copy()
+        _full = filtered_with[filtered_with['occ_display'] >= 100].copy()
 
         if not _free.empty:
             fig_hex.add_trace(go.Scattermapbox(
@@ -653,16 +773,16 @@ with st.container(border=True):
     st.caption(_date_caption)
     city_chart_mode = st.pills("Показать по городам:", options=["Сумма свободных мест", "Среднее свободных мест"], default="Сумма свободных мест")
     if city_chart_mode in (None, "Сумма свободных мест"):
-        df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].sum()
-        df_city = df_city.sort_values("avg_free_rooms", ascending=False)
-        total_free = df_city["avg_free_rooms"].sum()
-        fig_city = px.bar(df_city, x="city", y="avg_free_rooms")
+        df_city = filtered_by_city.groupby("city", as_index=False)["free_rooms_display"].sum()
+        df_city = df_city.sort_values("free_rooms_display", ascending=False)
+        total_free = df_city["free_rooms_display"].sum()
+        fig_city = px.bar(df_city, x="city", y="free_rooms_display")
         fig_city.update_traces(marker_color="#4a90d9")
         fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Свободных мест (сумма, шт.)", margin=dict(t=30, b=40))
     else:
-        df_city = filtered_by_city.groupby("city", as_index=False)["avg_free_rooms"].mean()
-        df_city = df_city.sort_values("avg_free_rooms", ascending=False)
-        fig_city = px.bar(df_city, x="city", y="avg_free_rooms")
+        df_city = filtered_by_city.groupby("city", as_index=False)["free_rooms_display"].mean()
+        df_city = df_city.sort_values("free_rooms_display", ascending=False)
+        fig_city = px.bar(df_city, x="city", y="free_rooms_display")
         fig_city.update_traces(marker_color="#4a90d9")
         fig_city.update_layout(showlegend=False, xaxis_title="Город", yaxis_title="Свободных мест (среднее, шт.)", margin=dict(t=10, b=40))
     st.plotly_chart(fig_city, use_container_width=True, config={"scrollZoom": False})
@@ -681,13 +801,15 @@ with st.container(border=True):
     )
     search = st.text_input("Поиск", placeholder="Название или город...")
     if table_mode == "Основные показатели":
-        filtered["rooms_total"] = filtered.apply(_rooms_total, axis=1)
         table_cols = {
             "city": "Город", "name": "Название",
-            "avg_occupancy_pct": "Загруженность %",
-            "avg_free_rooms_pct": "Свободно %",
-            "avg_free_rooms": "Свободных мест",
-            "rooms_total": "Номерной фонд",
+            "source_label": "Источник",
+            "occ_display": "Загруженность %",
+            "free_rooms_pct_display": "Свободно %",
+            "free_rooms_display": "Свободных мест",
+            "rooms_total_display": "Номерной фонд",
+            "capacity_display": "Вместимость (доступные места)",
+            "min_price_display": "Минимальная цена, руб",
         }
         available = {k: v for k, v in table_cols.items() if k in filtered.columns}
         table = (
@@ -710,4 +832,6 @@ with st.container(border=True):
             if col in table.columns:
                 mask |= table[col].str.contains(search, case=False, na=False)
         table = table[mask]
+    table = table.reset_index(drop=True)
+    table.insert(0, "№", table.index + 1)
     st.dataframe(table, use_container_width=True, height=400, column_config=col_cfg, hide_index=True)
