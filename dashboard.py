@@ -449,7 +449,7 @@ if not filtered_without.empty:
         hovertemplate="%{customdata[0]}<extra></extra>",
         name="Нет данных о загруженности",
         legendgroup="without_data",
-        showlegend=True,
+        showlegend=False,
     ))
 
 # Подложка-бордер: отели с данными (рисуются после — лежат сверху)
@@ -487,13 +487,14 @@ if not filtered_with.empty:
     ))
 
 # Всегда добавляем легенду "Нет данных" (невидимый маркер если таких нет)
-fig.add_trace(go.Scattermapbox(
-    lat=[None], lon=[None],
+fig.add_trace(go.Scatter(
+    x=[None], y=[None],
     mode="markers",
-    marker=go.scattermapbox.Marker(size=12, color="#7fb3d3", opacity=0.8),
+    marker=dict(size=12, color="#7fb3d3", opacity=0.8, line=dict(color="#333333", width=1.5)),
     name="Нет данных о загруженности",
     legendgroup="without_data",
-    showlegend=len(filtered_without) == 0,
+    showlegend=True,
+    hoverinfo="skip",
 ))
 
 fig.update_layout(
@@ -569,7 +570,7 @@ with st.container(border=True):
                 hovertemplate='%{customdata[0]}<extra></extra>',
                 name='Есть свободные места',
                 legendgroup='hex_free',
-                showlegend=True,
+                showlegend=False,
             ))
 
         if not _full.empty:
@@ -589,8 +590,26 @@ with st.container(border=True):
                 hovertemplate='%{customdata[0]}<extra></extra>',
                 name='Загруженность 100%',
                 legendgroup='hex_full',
-                showlegend=True,
+                showlegend=False,
             ))
+        fig_hex.add_trace(go.Scatter(
+            x=[None], y=[None],
+            mode='markers',
+            marker=dict(size=8, color='#111111', opacity=0.9, line=dict(color='#333333', width=1.5)),
+            name='Есть свободные места',
+            legendgroup='hex_free',
+            showlegend=True,
+            hoverinfo='skip',
+        ))
+        fig_hex.add_trace(go.Scatter(
+            x=[None], y=[None],
+            mode='markers',
+            marker=dict(size=8, color='#ffffff', opacity=0.9, line=dict(color='#333333', width=1.5)),
+            name='Загруженность 100%',
+            legendgroup='hex_full',
+            showlegend=True,
+            hoverinfo='skip',
+        ))
 
         fig_hex.update_layout(
             mapbox=dict(style='open-street-map', zoom=5.5, center={'lat': 54.0, 'lon': 103.5}),
