@@ -1,0 +1,21 @@
+﻿city,ota_hotel_id,master_id,name,name_en,address,latitude,longitude,url,rooms_number
+Иркутск,irkutsk_city_center,13384478,Отель Иркутск Сити Центр,Irkutsk Siti Centr Hotel,"ул. Чкалова, д. 15, Иркутск",52.28786,104.27297,https://ostrovok.ru/hotel/russia/irkutsk/mid13384478/irkutsk_city_center,206
+Никола,hotel_nikola_2,8748287,Отель Никола,Nikola Hotel,"Байкальский тракт 64-й км, поселок Никола, улица Ангарская, д. 15, Никола",51.892323,104.82522,https://ostrovok.ru/hotel/russia/irkutsk/mid8748287/hotel_nikola_2,27
+Иркутск,tajga_hotel,9767827,Отель Тайга,Tajga Hotel,"улица Сурикова, д.4в, Иркутск",52.288013,104.26984,https://ostrovok.ru/hotel/russia/irkutsk/mid9767827/tajga_hotel,44
+Усть-Кут,flagman_hotel_4,9081483,Отель Флагман,Flagman Hotel,"Россия, Иркутская область, Усть-Кут, ул. Калинина, д. 8, Усть-Кут",56.779224,105.74704,https://ostrovok.ru/hotel/russia/irkutsk/mid9081483/flagman_hotel_4,13
+Листвянка,mayak_hotel_listvyanka,7816262,Отель Маяк,Mayak Hotel,"улица Горького, дом 85а, Листвянка",51.847157,104.873566,https://ostrovok.ru/hotel/russia/irkutsk/mid7816262/mayak_hotel_listvyanka,54
+Иркутск,otel_irkut,8348721,Отель Иркут,Irkut Hotel,"улица Пролетарская, д.7, Иркутск",52.288887,104.28529,https://ostrovok.ru/hotel/russia/irkutsk/mid8348721/otel_irkut,30
+Нижнеудинск,lyuks_hotel_4,10613305,Отель Люкс,Lyuks Hotel,"улица Просвещения, д. 17, Нижнеудинск",54.919167,99.04945,https://ostrovok.ru/hotel/russia/irkutsk/mid10613305/lyuks_hotel_4,15
+Иркутск,yakovlev_hotel,8742012,Отель Яковлевъ,Yakovlev` Hotel,"улица Тимирязева, д.9, Иркутск",52.27755,104.28911,https://ostrovok.ru/hotel/russia/irkutsk/mid8742012/yakovlev_hotel,25
+Иркутск,archi_apt_apartments,10211904,Отель Baikal Archi Apt,Baikal Archi Apt Hotel,"ул Некрасова, стр. 3а, помещ. 2, Иркутск",52.289085,104.28417,https://ostrovok.ru/hotel/russia/irkutsk/mid10211904/archi_apt_apartments,7
+Братск,klubnyij_kvartal_apartments,9081992,Клубный Квартал,Klubnyij Kvartal,"бульвар Победы, д.30, Братск",56.150185,101.64935,https://ostrovok.ru/hotel/russia/irkutsk/mid9081992/klubnyij_kvartal_apartments,67
+Хужир,hotel_flagman_olkhona,10019347,Отель Флагман Ольхона,Flagman Olkhona Hotel,"улица Молодёжная, д.1, Хужир",53.19252,107.35624,https://ostrovok.ru/hotel/russia/irkutsk/mid10019347/hotel_flagman_olkhona,15
+Иркутск,dohodnyij_dom_listratvoj_butikhotel,9024017,Отель Доходный дом Листратовой,Dohodnyij Dom Listratovoj Hotel,"Подгорная улица, д.16, Иркутск",52.277744,104.29269,https://ostrovok.ru/hotel/russia/irkutsk/mid9024017/dohodnyij_dom_listratvoj_butikhotel,15
+Листвянка,legend_of_baikal,7776712,Отель Легенда Байкала,Legenda Bajkala Hotel,"Улица Исток Ангары, д.11, Листвянка",51.87289,104.828636,https://ostrovok.ru/hotel/russia/irkutsk/mid7776712/legend_of_baikal,35
+Листвянка,bajkal_hotel,7965294,Отель Байкал,Hotel Baykal,"Академическая улица, 13, Листвянка",51.867683,104.83757,https://ostrovok.ru/hotel/russia/irkutsk/mid7965294/bajkal_hotel,72
+Иркутск,hotel_nuur_hotel,13174758,Отель Nuur Hotel,Nuur Hotel,"улица Карла Либкнехта, д. 85, Иркутск",52.28169,104.30685,https://ostrovok.ru/hotel/russia/irkutsk/mid13174758/hotel_nuur_hotel,28
+Хужир,baykal_khan_hotel_olkhon,6848973,Отель Байкал-Хан Ольхон,Bajkal-Han Olhon Hotel,"улица Ворошилова, д. 18, Хужир",53.19855,107.351166,https://ostrovok.ru/hotel/russia/irkutsk/mid6848973/baykal_khan_hotel_olkhon,40
+Иркутск,victory_hotel_4,8457230,Гостиница Виктория,Viktoriya Hotel,"улица Богдана Хмельницкого, д.1 Иркутск, Россия, Иркутск",52.283413,104.28748,https://ostrovok.ru/hotel/russia/irkutsk/mid8457230/victory_hotel_4,30
+Ангарск,hotel_angara,6715745,Отель Ангара-Приоритет,Angara-Prioritet Hotel,"Квартал Б, д.13, Ангарск",52.50619,103.83226,https://ostrovok.ru/hotel/russia/irkutsk/mid6715745/hotel_angara,31
+Хужир,guest_house_baykal,13644417,В объятиях Байкала,V Objyatiyakh Baikala Living quarters,"Переулок Олимпийский д. 4, Хужир",53.188156,107.33027,https://ostrovok.ru/hotel/russia/irkutsk/mid13644417/guest_house_baykal,
+Иркутск,azimut_aeroport_irkutsk_hotel,13317260,AZIMUT Отель Аэропорт Иркутск 4*,AZIMUT Hotel Airport Irkutsk 4*,"ул. Ширямова, 10А, Иркутск",52.27366,104.35384,https://ostrovok.ru/hotel/russia/irkutsk/mid13317260/azimut_aeroport_irkutsk_hotel,100
