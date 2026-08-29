@@ -1,9 +1,9 @@
 ﻿city,ota_hotel_id,master_id,name,name_en,address,latitude,longitude,url,rooms_number
 Иркутск,irkutsk_city_center,13384478,Отель Иркутск Сити Центр,Irkutsk Siti Centr Hotel,"ул. Чкалова, д. 15, Иркутск",52.28786,104.27297,https://ostrovok.ru/hotel/russia/irkutsk/mid13384478/irkutsk_city_center,206
 Иркутск,tajga_hotel,9767827,Отель Тайга,Tajga Hotel,"улица Сурикова, д.4в, Иркутск",52.288013,104.26984,https://ostrovok.ru/hotel/russia/irkutsk/mid9767827/tajga_hotel,44
+Иркутск,dohodnyij_dom_listratvoj_butikhotel,9024017,Отель Доходный дом Листратовой,Dohodnyij Dom Listratovoj Hotel,"Подгорная улица, д.16, Иркутск",52.277744,104.29269,https://ostrovok.ru/hotel/russia/irkutsk/mid9024017/dohodnyij_dom_listratvoj_butikhotel,15
 Иркутск,ibis_irkutsk_center,8734978,Отель Ибис Иркутск Центр,Ibis Irkutsk Tsentr Hotel,"улица Полины Осипенко, дом 5, Иркутск",52.28745,104.27029,https://ostrovok.ru/hotel/russia/irkutsk/mid8734978/ibis_irkutsk_center,128
 Иркутск,victory_hotel_4,8457230,Гостиница Виктория,Viktoriya Hotel,"улица Богдана Хмельницкого, д.1 Иркутск, Россия, Иркутск",52.283413,104.28748,https://ostrovok.ru/hotel/russia/irkutsk/mid8457230/victory_hotel_4,30
-Иркутск,dohodnyij_dom_listratvoj_butikhotel,9024017,Отель Доходный дом Листратовой,Dohodnyij Dom Listratovoj Hotel,"Подгорная улица, д.16, Иркутск",52.277744,104.29269,https://ostrovok.ru/hotel/russia/irkutsk/mid9024017/dohodnyij_dom_listratvoj_butikhotel,15
 Иркутск,angara_hotel,7806182,Ангара Отель,Angara Hotel,"улица Сухэ-Батора, д.7, Иркутск",52.287533,104.28244,https://ostrovok.ru/hotel/russia/irkutsk/mid7806182/angara_hotel,300
 Иркутск,rus_hotel_irkutsk,7774831,Гостиничный Комплекс Русь,Rus Hotel,"улица Свердлова,19, Иркутск",52.28431,104.27926,https://ostrovok.ru/hotel/russia/irkutsk/mid7774831/rus_hotel_irkutsk,56
 Иркутск,evropa_hotel,7828771,Отель Европа,Evropa Hotel,"улица Байкальская, д.69, Иркутск",52.274567,104.304855,https://ostrovok.ru/hotel/russia/irkutsk/mid7828771/evropa_hotel,58
@@ -12,66 +12,65 @@
 Никола,hotel_nikola_2,8748287,Отель Никола,Nikola Hotel,"Байкальский тракт 64-й км, поселок Никола, улица Ангарская, д. 15, Никола",51.892323,104.82522,https://ostrovok.ru/hotel/russia/irkutsk/mid8748287/hotel_nikola_2,27
 Иркутск,otel_irkut,8348721,Отель Иркут,Irkut Hotel,"улица Пролетарская, д.7, Иркутск",52.288887,104.28529,https://ostrovok.ru/hotel/russia/irkutsk/mid8348721/otel_irkut,30
 Иркутск,divobaykala_flat_1,13373670,Диво Байкала 1,DivoBaykala 1,"улица 4-я Железнодорожная, д.57, Иркутск",52.279198,104.2479,https://ostrovok.ru/hotel/russia/irkutsk/mid13373670/divobaykala_flat_1,
-Иркутск,history_boutiquehotel,9741097,Отель HISTORY Бутик-отель и СПА,HISTORY Boutique Hotel & SPA Hotel,"улица 3 Июля, д.26, Иркутск",52.27124,104.29095,https://ostrovok.ru/hotel/russia/irkutsk/mid9741097/history_boutiquehotel,40
-Иркутск,azimut_aeroport_irkutsk_hotel,13317260,AZIMUT Отель Аэропорт Иркутск 4*,AZIMUT Hotel Airport Irkutsk 4*,"ул. Ширямова, 10А, Иркутск",52.27366,104.35384,https://ostrovok.ru/hotel/russia/irkutsk/mid13317260/azimut_aeroport_irkutsk_hotel,100
 Никола,hotel_anastasiya_2,13164685,Отель ГК Анастасия,Anastasiya GK Hotel,"улица Ангарская, 8/2, Никола",51.891804,104.825165,https://ostrovok.ru/hotel/russia/irkutsk/mid13164685/hotel_anastasiya_2,26
+Иркутск,azimut_aeroport_irkutsk_hotel,13317260,AZIMUT Отель Аэропорт Иркутск 4*,AZIMUT Hotel Airport Irkutsk 4*,"ул. Ширямова, 10А, Иркутск",52.27366,104.35384,https://ostrovok.ru/hotel/russia/irkutsk/mid13317260/azimut_aeroport_irkutsk_hotel,100
 Листвянка,podlemorie_hotel,7679750,Отель Подлеморье,Podlemore Hotel,"улица Горького, д.31Б, Листвянка",51.854576,104.862686,https://ostrovok.ru/hotel/russia/irkutsk/mid7679750/podlemorie_hotel,14
-Иркутск,vozdushnaya_gavan,8059310,Отель Воздушная Гавань,Vozdushnaya Gavan Hotel,"улица Ширямова, д.6, Иркутск",52.274734,104.35391,https://ostrovok.ru/hotel/russia/irkutsk/mid8059310/vozdushnaya_gavan,140
+Иркутск,history_boutiquehotel,9741097,Отель HISTORY Бутик-отель и СПА,HISTORY Boutique Hotel & SPA Hotel,"улица 3 Июля, д.26, Иркутск",52.27124,104.29095,https://ostrovok.ru/hotel/russia/irkutsk/mid9741097/history_boutiquehotel,40
+Нижнеудинск,lyuks_hotel_4,10613305,Отель Люкс,Lyuks Hotel,"улица Просвещения, д. 17, Нижнеудинск",54.919167,99.04945,https://ostrovok.ru/hotel/russia/irkutsk/mid10613305/lyuks_hotel_4,15
+Листвянка,bajkal_hotel,7965294,Отель Байкал,Hotel Baykal,"Академическая улица, 13, Листвянка",51.867683,104.83757,https://ostrovok.ru/hotel/russia/irkutsk/mid7965294/bajkal_hotel,72
+Листвянка,hotel_nataly_2,7776564,Отель Натали,Nataly Hotel,"улица Чапаева, д.91, Листвянка",51.862007,104.87847,https://ostrovok.ru/hotel/russia/irkutsk/mid7776564/hotel_nataly_2,12
 Иркутск,yakovlev_hotel,8742012,Отель Яковлевъ,Yakovlev` Hotel,"улица Тимирязева, д.9, Иркутск",52.27755,104.28911,https://ostrovok.ru/hotel/russia/irkutsk/mid8742012/yakovlev_hotel,25
 Иркутск,hotel_nuur_hotel,13174758,Отель Nuur Hotel,Nuur Hotel,"улица Карла Либкнехта, д. 85, Иркутск",52.28169,104.30685,https://ostrovok.ru/hotel/russia/irkutsk/mid13174758/hotel_nuur_hotel,28
+Иркутск,vozdushnaya_gavan,8059310,Отель Воздушная Гавань,Vozdushnaya Gavan Hotel,"улица Ширямова, д.6, Иркутск",52.274734,104.35391,https://ostrovok.ru/hotel/russia/irkutsk/mid8059310/vozdushnaya_gavan,140
 Хужир,hotel_flagman_olkhona,10019347,Отель Флагман Ольхона,Flagman Olkhona Hotel,"улица Молодёжная, д.1, Хужир",53.19252,107.35624,https://ostrovok.ru/hotel/russia/irkutsk/mid10019347/hotel_flagman_olkhona,15
 Байкальск,grand_baikal,8481257,Отель Гранд Байкал,Grand Bajkal Hotel,"мкр. Красный Ключ, 91, Байкальск",51.509495,104.120804,https://ostrovok.ru/hotel/russia/irkutsk/mid8481257/grand_baikal,64
-Листвянка,hotel_nataly_2,7776564,Отель Натали,Nataly Hotel,"улица Чапаева, д.91, Листвянка",51.862007,104.87847,https://ostrovok.ru/hotel/russia/irkutsk/mid7776564/hotel_nataly_2,12
-Листвянка,bajkal_hotel,7965294,Отель Байкал,Hotel Baykal,"Академическая улица, 13, Листвянка",51.867683,104.83757,https://ostrovok.ru/hotel/russia/irkutsk/mid7965294/bajkal_hotel,72
 Большое Голоустное,wind_lake_guest_house,13437748,Wind Lake,Wind Lake,"2-я Рейдовая улица, д.12, Большое Голоустное",52.027744,105.404976,https://ostrovok.ru/hotel/russia/irkutsk/mid13437748/wind_lake_guest_house,15
-Иркутск,otel_tsentral,8748836,Отель Централь,Central Hotel,"переулок Богданова 8, Иркутск",52.286674,104.285194,https://ostrovok.ru/hotel/russia/irkutsk/mid8748836/otel_tsentral,48
 Листвянка,vera_baikal,13308776,Отель Вера Байкал,Vera Baykal Hotel,"улица Горького, 8, Листвянка",51.843483,104.87859,https://ostrovok.ru/hotel/russia/irkutsk/mid13308776/vera_baikal,38
+Иркутск,otel_tsentral,8748836,Отель Централь,Central Hotel,"переулок Богданова 8, Иркутск",52.286674,104.285194,https://ostrovok.ru/hotel/russia/irkutsk/mid8748836/otel_tsentral,48
 Братск,klubnyij_kvartal_apartments,9081992,Клубный Квартал,Klubnyij Kvartal,"бульвар Победы, д.30, Братск",56.150185,101.64935,https://ostrovok.ru/hotel/russia/irkutsk/mid9081992/klubnyij_kvartal_apartments,48
-Иркутск,empire_hotel_3,7829344,Гостиница Империя,Empire Hotel,"улица Польских Повстанцев, стр. 1а/2, Иркутск",52.292038,104.2837,https://ostrovok.ru/hotel/russia/irkutsk/mid7829344/empire_hotel_3,49
 Листвянка,baykal_shale_guest_house,13431413,Байкал Шале,Baykal Shale,"улица Гудина, д.75, Листвянка",51.850624,104.8825,https://ostrovok.ru/hotel/russia/irkutsk/mid13431413/baykal_shale_guest_house,11
-Нижнеудинск,lyuks_hotel_4,10613305,Отель Люкс,Lyuks Hotel,"улица Просвещения, д. 17, Нижнеудинск",54.919167,99.04945,https://ostrovok.ru/hotel/russia/irkutsk/mid10613305/lyuks_hotel_4,15
-Листвянка,parus_18,9996236,Курортный отель Парус,Parus Hotel,"улица Горького, д.93А, Листвянка",51.846233,104.875244,https://ostrovok.ru/hotel/russia/irkutsk/mid9996236/parus_18,17
 Саянск,praskovya_guest_house,9999816,Отель Прасковья,Praskovya Hotel,"микрорайон Юбилейный, д.13, Саянск",54.109844,102.16342,https://ostrovok.ru/hotel/russia/irkutsk/mid9999816/praskovya_guest_house,12
-Иркутск,miniotel_good_hotel,10013559,Мини-Отель Good Hotel,Good Hotel Mini-Hotel,"ул Сибирская, стр. 21/2, помещ. 1, Иркутск",52.26237,104.30276,https://ostrovok.ru/hotel/russia/irkutsk/mid10013559/miniotel_good_hotel,6
+Листвянка,parus_18,9996236,Курортный отель Парус,Parus Hotel,"улица Горького, д.93А, Листвянка",51.846233,104.875244,https://ostrovok.ru/hotel/russia/irkutsk/mid9996236/parus_18,17
+Иркутск,empire_hotel_3,7829344,Гостиница Империя,Empire Hotel,"улица Польских Повстанцев, стр. 1а/2, Иркутск",52.292038,104.2837,https://ostrovok.ru/hotel/russia/irkutsk/mid7829344/empire_hotel_3,49
+Листвянка,baykal_khan_listvyanka,10360512,Отель Байкал Хан п.Листвянка,Baykal Khan p. Listvyanka Hotel,"рп. Листвянка, ул Гудина, д. 22а, Листвянка",51.846184,104.878456,https://ostrovok.ru/hotel/russia/irkutsk/mid10360512/baykal_khan_listvyanka,18
+Листвянка,hotel_sozvezdie_baikala,8666978,Отель Созвездие Байкала,Sozvezdie Bajkala Hotel,"Улица Партизанская, д.14, Листвянка",51.843994,104.88747,https://ostrovok.ru/hotel/russia/irkutsk/mid8666978/hotel_sozvezdie_baikala,22
+Хужир,baza_otdykha_gostiny_dvor_vdokhnovenie,10438999,Отель Гостиный Двор Вдохновение,Gostiny Dvor Vdokhnovenie Hotel,"ул. Северная, д. 5/2, Хужир",53.196358,107.35481,https://ostrovok.ru/hotel/russia/irkutsk/mid10438999/baza_otdykha_gostiny_dvor_vdokhnovenie,34
 Иркутск,international_hotel_sayen,7384846,SAYEN,SAYEN Hotel,"ул. Карла Маркса, 13Б, Иркутск",52.282074,104.283806,https://ostrovok.ru/hotel/russia/irkutsk/mid7384846/international_hotel_sayen,25
 Хужир,gostevoy_dom_sunrise,10485526,Sunrise,Sunrise,"Первомайская улица, 25А, Хужир",53.196953,107.33776,https://ostrovok.ru/hotel/russia/irkutsk/mid10485526/gostevoy_dom_sunrise,
-Листвянка,baykal_khan_listvyanka,10360512,Отель Байкал Хан п.Листвянка,Baykal Khan p. Listvyanka Hotel,"рп. Листвянка, ул Гудина, д. 22а, Листвянка",51.846184,104.878456,https://ostrovok.ru/hotel/russia/irkutsk/mid10360512/baykal_khan_listvyanka,18
-Хужир,baza_otdykha_gostiny_dvor_vdokhnovenie,10438999,Отель Гостиный Двор Вдохновение,Gostiny Dvor Vdokhnovenie Hotel,"ул. Северная, д. 5/2, Хужир",53.196358,107.35481,https://ostrovok.ru/hotel/russia/irkutsk/mid10438999/baza_otdykha_gostiny_dvor_vdokhnovenie,34
 Листвянка,mayak_hotel_listvyanka,7816262,Отель Маяк,Mayak Hotel,"улица Горького, дом 85а, Листвянка",51.847157,104.873566,https://ostrovok.ru/hotel/russia/irkutsk/mid7816262/mayak_hotel_listvyanka,54
 Иркутск,best_eastern_hotel_zvezda,7806155,Отель Звезда,Star Hotel,"улица Ядринцева, д. 1Ж, Иркутск",52.277885,104.33643,https://ostrovok.ru/hotel/russia/irkutsk/mid7806155/best_eastern_hotel_zvezda,65
-Листвянка,hotel_sozvezdie_baikala,8666978,Отель Созвездие Байкала,Sozvezdie Bajkala Hotel,"Улица Партизанская, д.14, Листвянка",51.843994,104.88747,https://ostrovok.ru/hotel/russia/irkutsk/mid8666978/hotel_sozvezdie_baikala,22
 Листвянка,guest_house_baykaliya,13428580,Байкалия,Baykaliya,"Горная улица, 15, Листвянка",51.859745,104.86126,https://ostrovok.ru/hotel/russia/irkutsk/mid13428580/guest_house_baykaliya,
 Иркутск,inn_business_hall,8735100,Отель Business Hall,Business Hall Hotel,"улица Свердлова, д.10, Иркутск",52.282608,104.27683,https://ostrovok.ru/hotel/russia/irkutsk/mid8735100/inn_business_hall,18
+Иркутск,aristokrat_hotel,8745188,Отель Аристократ,Aristokrat Hotel,"улица Ленина, д.9, Иркутск",52.281384,104.281876,https://ostrovok.ru/hotel/russia/irkutsk/mid8745188/aristokrat_hotel,12
 Хужир,olkhonstory_guest_house,8876953,История Ольхона,Olkhon Story,"улица Народная, д.19, Хужир",53.197918,107.35988,https://ostrovok.ru/hotel/russia/irkutsk/mid8876953/olkhonstory_guest_house,6
-Иркутск,archi_apt_apartments,10211904,Отель Baikal Archi Apt,Baikal Archi Apt Hotel,"ул Некрасова, стр. 3а, помещ. 2, Иркутск",52.289085,104.28417,https://ostrovok.ru/hotel/russia/irkutsk/mid10211904/archi_apt_apartments,7
 Большое Голоустное,azatai_park_hotel,13757053,"Парк-отель ""Азатай""",Azatai Park Hotel,"Подкамень местечко, 1, Большое Голоустное",52.061794,105.47054,https://ostrovok.ru/hotel/russia/irkutsk/mid13757053/azatai_park_hotel,
 Иркутск,apartamentyi_v_irkutske,9993445,Меблированные комнаты в Иркутске,Living Quarters v Irkutske,"переулок Алексеева, д.2А, Иркутск",52.263927,104.30125,https://ostrovok.ru/hotel/russia/irkutsk/mid9993445/apartamentyi_v_irkutske,
 Листвянка,larus,9828888,Отель Ларус,Larus Hotel,"улица Октябрьская, дом 8, Листвянка",51.87526,104.83128,https://ostrovok.ru/hotel/russia/irkutsk/mid9828888/larus,14
-Иркутск,baikal_business_center_hotel,7827545,Отель Байкал Бизнес Центр,Baikal Business Center Hotel,"улица Байкальская, д.279, Иркутск",52.257786,104.35341,https://ostrovok.ru/hotel/russia/irkutsk/mid7827545/baikal_business_center_hotel,59
-Хужир,bolshoe_puteshestvie_hotel,9252749,Кемпинг Отель Ольхон,Kemping Olhon Hotel,"Байкальская, д. 64/1, Хужир",53.194378,107.354454,https://ostrovok.ru/hotel/russia/irkutsk/mid9252749/bolshoe_puteshestvie_hotel,10
-Иркутск,atlas_hotel_3,7883850,Гостиница Атлас,Atlas Hotel,"проезд Атласова, д.9, Иркутск",52.264576,104.32704,https://ostrovok.ru/hotel/russia/irkutsk/mid7883850/atlas_hotel_3,29
 Иркутск,mini_hotel_vizit,13384141,Гостиница Визит,Hotel Vizit,"ул Софьи Перовской, стр. 30, помещ. 4, Иркутск",52.28137,104.30118,https://ostrovok.ru/hotel/russia/irkutsk/mid13384141/mini_hotel_vizit,8
-Иркутск,matreshka_hotel,6332937,Отель Матрешка,Matreshka Hotel,"Улица Софьи Перовской, д.31/1, Иркутск",52.282005,104.30065,https://ostrovok.ru/hotel/russia/irkutsk/mid6332937/matreshka_hotel,35
+Иркутск,archi_apt_apartments,10211904,Отель Baikal Archi Apt,Baikal Archi Apt Hotel,"ул Некрасова, стр. 3а, помещ. 2, Иркутск",52.289085,104.28417,https://ostrovok.ru/hotel/russia/irkutsk/mid10211904/archi_apt_apartments,7
+Иркутск,atlas_hotel_3,7883850,Гостиница Атлас,Atlas Hotel,"проезд Атласова, д.9, Иркутск",52.264576,104.32704,https://ostrovok.ru/hotel/russia/irkutsk/mid7883850/atlas_hotel_3,29
+Хужир,bolshoe_puteshestvie_hotel,9252749,Кемпинг Отель Ольхон,Kemping Olhon Hotel,"Байкальская, д. 64/1, Хужир",53.194378,107.354454,https://ostrovok.ru/hotel/russia/irkutsk/mid9252749/bolshoe_puteshestvie_hotel,10
+Нижнеудинск,uda_2,8752619,Отель УДА,UDA Hotel,"улица Ленина, д.1, Нижнеудинск",54.909504,99.03558,https://ostrovok.ru/hotel/russia/irkutsk/mid8752619/uda_2,45
 Иркутск,city_park_hotel_13,9987117,Меблированные комнаты City Park,City Park Living quarters,"улица Красных Мадьяр, 29, Иркутск",52.273567,104.30006,https://ostrovok.ru/hotel/russia/irkutsk/mid9987117/city_park_hotel_13,
 Иркутск,minihotel_albatros,6481029,Гостиница Альбатрос,Albatros Hotel,"улица Ширямова, стр.15б/1, Иркутск",52.261833,104.35391,https://ostrovok.ru/hotel/russia/irkutsk/mid6481029/minihotel_albatros,12
-Листвянка,malinovka_3,9079016,Малиновка,Malinovka,"улица Суворова, д. 5а, Листвянка",51.864937,104.84327,https://ostrovok.ru/hotel/russia/irkutsk/mid9079016/malinovka_3,
-Хужир,baikal_view_hotel,7681558,Baikal View Hotel,Baikal View Hotel,"улица Российская, д. 17, Хужир",53.1781,107.30675,https://ostrovok.ru/hotel/russia/irkutsk/mid7681558/baikal_view_hotel,99
 Иркутск,mihail_strogov,8469949,Отель Михаил Строгов,Mihail Strogov Hotel,"улица Депутатская, д. 36, Иркутск",52.27365,104.3207,https://ostrovok.ru/hotel/russia/irkutsk/mid8469949/mihail_strogov,20
-Иркутск,lotos_hotel,7744038,Отель Лотос,Lotos Hotel,"Байкальская улица, д.14 Б, Иркутск",52.278976,104.29911,https://ostrovok.ru/hotel/russia/irkutsk/mid7744038/lotos_hotel,23
+Иркутск,baikal_business_center_hotel,7827545,Отель Байкал Бизнес Центр,Baikal Business Center Hotel,"улица Байкальская, д.279, Иркутск",52.257786,104.35341,https://ostrovok.ru/hotel/russia/irkutsk/mid7827545/baikal_business_center_hotel,59
 Листвянка,the_sky_of_lake_baikal,13459275,Небо Байкала,Nebo Baykala,"улица Горького, д.133/2, Листвянка",51.842533,104.88071,https://ostrovok.ru/hotel/russia/irkutsk/mid13459275/the_sky_of_lake_baikal,
-Иркутск,bajkal_severnoe_more_hotel,8526970,Отель Байкал - Северное Море,Bajkal - Severnoe More Hotel,"Улица Дальневосточная, д.156, Иркутск",52.25208,104.32113,https://ostrovok.ru/hotel/russia/irkutsk/mid8526970/bajkal_severnoe_more_hotel,119
+Иркутск,matreshka_hotel,6332937,Отель Матрешка,Matreshka Hotel,"Улица Софьи Перовской, д.31/1, Иркутск",52.282005,104.30065,https://ostrovok.ru/hotel/russia/irkutsk/mid6332937/matreshka_hotel,35
 Иркутск,baikal_forest_hotel,9825031,Отель Форест,Forest Hotel,"улица Советская, д.58/1, Иркутск",52.275658,104.30523,https://ostrovok.ru/hotel/russia/irkutsk/mid9825031/baikal_forest_hotel,156
-Иркутск,montana_hostel,8746907,Меблированные комнаты Montana,Montana Living quarters,"улица Карла Либкнехта, д.6, Иркутск",52.28775,104.293526,https://ostrovok.ru/hotel/russia/irkutsk/mid8746907/montana_hostel,22
-Иркутск,7_dorog,7029576,Гостиница 7 дорог,7 Dorog Gostinitsa,"улица Ядринцева, д. 88, Иркутск",52.274845,104.335236,https://ostrovok.ru/hotel/russia/irkutsk/mid7029576/7_dorog,19
+Хужир,baikal_view_hotel,7681558,Baikal View Hotel,Baikal View Hotel,"улица Российская, д. 17, Хужир",53.1781,107.30675,https://ostrovok.ru/hotel/russia/irkutsk/mid7681558/baikal_view_hotel,99
+Иркутск,gostevoj_dom_na_zvezdinskoj,6827039,Отель на Звездинской,Na Zvezdinskoj Hotel,"Улица Звездинская, д. 5/1, Иркутск",52.273518,104.256294,https://ostrovok.ru/hotel/russia/irkutsk/mid6827039/gostevoj_dom_na_zvezdinskoj,25
+Иркутск,bajkal_severnoe_more_hotel,8526970,Отель Байкал - Северное Море,Bajkal - Severnoe More Hotel,"Улица Дальневосточная, д.156, Иркутск",52.25208,104.32113,https://ostrovok.ru/hotel/russia/irkutsk/mid8526970/bajkal_severnoe_more_hotel,119
+Иркутск,lotos_hotel,7744038,Отель Лотос,Lotos Hotel,"Байкальская улица, д.14 Б, Иркутск",52.278976,104.29911,https://ostrovok.ru/hotel/russia/irkutsk/mid7744038/lotos_hotel,23
 Листвянка,alaniya,10003444,Алания,Alaniya,"улица Суворова, д.5В, Листвянка",51.86549,104.84128,https://ostrovok.ru/hotel/russia/irkutsk/mid10003444/alaniya,
-Иркутск,gostinitsa_solntse,7818100,Гостиница Солнце,Sun Hotel,"улица Байкальская, д.295 Б, Иркутск",52.257305,104.359,https://ostrovok.ru/hotel/russia/irkutsk/mid7818100/gostinitsa_solntse,58
+Листвянка,malinovka_3,9079016,Малиновка,Malinovka,"улица Суворова, д. 5а, Листвянка",51.864937,104.84327,https://ostrovok.ru/hotel/russia/irkutsk/mid9079016/malinovka_3,
+Иркутск,7_dorog,7029576,Гостиница 7 дорог,7 Dorog Gostinitsa,"улица Ядринцева, д. 88, Иркутск",52.274845,104.335236,https://ostrovok.ru/hotel/russia/irkutsk/mid7029576/7_dorog,19
 Иркутск,magas,6839053,Отель на Перроне,Na Perrone Hotel,"ул Терешковой, стр. 6, помещ. 1, Иркутск",52.281338,104.25831,https://ostrovok.ru/hotel/russia/irkutsk/mid6839053/magas,25
-Бурдугуз,burduguz_hotel_2,7829252,Парк-Отель Бурдугуз,Burduguz Hotel,"улица Лесная, д.1, Бурдугуз",52.05705,104.60222,https://ostrovok.ru/hotel/russia/irkutsk/mid7829252/burduguz_hotel_2,69
+Иркутск,gostinitsa_solntse,7818100,Гостиница Солнце,Sun Hotel,"улица Байкальская, д.295 Б, Иркутск",52.257305,104.359,https://ostrovok.ru/hotel/russia/irkutsk/mid7818100/gostinitsa_solntse,58
 Железногорск-Илимский,izumrud_hotel_7,13287135,Отель Изумруд,Izumrud Hotel,"7-й квартал, д.20, Железногорск-Илимский",56.58639,104.12119,https://ostrovok.ru/hotel/russia/irkutsk/mid13287135/izumrud_hotel_7,9
 Листвянка,baykal_guest_house_3,13308043,Меблированные комнаты Байкал,Baykal Lodging house,"улица Горная, д. 8А, Листвянка",51.857647,104.859604,https://ostrovok.ru/hotel/russia/irkutsk/mid13308043/baykal_guest_house_3,
+Бурдугуз,burduguz_hotel_2,7829252,Парк-Отель Бурдугуз,Burduguz Hotel,"улица Лесная, д.1, Бурдугуз",52.05705,104.60222,https://ostrovok.ru/hotel/russia/irkutsk/mid7829252/burduguz_hotel_2,69
 Слюдянка,legendy_baykala,13868556,Гостиница Легенды Байкала,Legendy Baykala,"ул Фрунзе, зд. 8, помещ. 2, Слюдянка",51.6726,103.68329,https://ostrovok.ru/hotel/russia/irkutsk/mid13868556/legendy_baykala,18
-Нижнеудинск,uda_2,8752619,Отель УДА,UDA Hotel,"улица Ленина, д.1, Нижнеудинск",54.909504,99.03558,https://ostrovok.ru/hotel/russia/irkutsk/mid8752619/uda_2,45
-Иркутск,aristokrat_hotel,8745188,Отель Аристократ,Aristokrat Hotel,"улица Ленина, д.9, Иркутск",52.281384,104.281876,https://ostrovok.ru/hotel/russia/irkutsk/mid8745188/aristokrat_hotel,12
 Иркутск,kupechesky_dvor_hotel,8059354,Отель Купеческий Дворъ,Kupecheskij Dvor Hotel,"улица Седова, д.10, Иркутск",52.27513,104.28797,https://ostrovok.ru/hotel/russia/irkutsk/mid8059354/kupechesky_dvor_hotel,14
 Хужир,nochleg_i_zavtrak_bb_shambala,10012287,Загородный отель Шамбала,Shambala Country Hotel,"ул Северная, з/у 12А, Хужир",53.19933,107.3538,https://ostrovok.ru/hotel/russia/irkutsk/mid10012287/nochleg_i_zavtrak_bb_shambala,10
 Хужир,baza_otdykha_olkhon,11256148,База отдыха Ольхон,Baza Otdykha Olkhon,"Иркутская область, Ольхонский район, п. Хужир, ул. Байкальская 64/2, Хужир",53.19386,107.354095,https://ostrovok.ru/hotel/russia/irkutsk/mid11256148/baza_otdykha_olkhon,50
@@ -114,7 +113,6 @@
 Байкальск,gostevoi_dom_margobai,8735570,Отель Маргобай,Hotel Margobaj,"мкр. Строитель, пер. Берёзовый, д. 9, Байкальск",51.524414,104.13655,https://ostrovok.ru/hotel/russia/irkutsk/mid8735570/gostevoi_dom_margobai,14
 Листвянка,dauria_hotel_2,7685971,Отель Даурия,Dauria Hotel,"улица Куликова, д.44, Листвянка",51.859695,104.86325,https://ostrovok.ru/hotel/russia/irkutsk/mid7685971/dauria_hotel_2,4
 Листвянка,yolochka,9992200,Меблированные комнаты Ёлочка,Yolochka,"улица Чапаева, д.8, Листвянка",51.851433,104.87036,https://ostrovok.ru/hotel/russia/irkutsk/mid9992200/yolochka,6
-Байкальск,hotel_kosmos_5,10212636,Отель Космос,Hotel Kosmos,"Гагарина микрорайон, 2а, Байкальск",51.521896,104.15169,https://ostrovok.ru/hotel/russia/irkutsk/mid10212636/hotel_kosmos_5,16
 Ангарск,hotel_angara,6715745,Отель Ангара-Приоритет,Angara-Prioritet Hotel,"Квартал Б, д.13, Ангарск",52.50619,103.83226,https://ostrovok.ru/hotel/russia/irkutsk/mid6715745/hotel_angara,31
 Ангарск,meridian_7,6297237,Отель Меридиан,Meridian hotel,"26 квартал, дом 10, Ангарск",52.55192,103.87882,https://ostrovok.ru/hotel/russia/irkutsk/mid6297237/meridian_7,33
 Усть-Кут,flagman_hotel_4,9081483,Отель Флагман,Flagman Hotel,"Россия, Иркутская область, Усть-Кут, ул. Калинина, д. 8, Усть-Кут",56.779224,105.74704,https://ostrovok.ru/hotel/russia/irkutsk/mid9081483/flagman_hotel_4,13
@@ -142,8 +140,8 @@
 Братск,bely_bereg,10844916,Отель Белый берег,Bely Bereg Hotel,"ул. Курчатова 65, Братск",56.157047,101.66097,https://ostrovok.ru/hotel/russia/irkutsk/mid10844916/bely_bereg,5
 Иркутск,arena_on_sverdlov,10153554,"Меблированные комнаты общежитие ""Арена на Свердлова""","Living quarters Obschezhitie ""arena on sverdlova""","ул. Свердлова, 39, Иркутск",52.287437,104.28795,https://ostrovok.ru/hotel/russia/irkutsk/mid10153554/arena_on_sverdlov,
 Иркутск,yupiter,9987415,Юпитер,Yupiter,"ул. Шевцова, д. 35, Иркутск",52.30965,104.30714,https://ostrovok.ru/hotel/russia/irkutsk/mid9987415/yupiter,23
-Бугульдейка,gostevoy_dom_isiger_baikal,11254237,Гостевой дом ISIGER BAIKAL,Gostevoy Dom Isiger Baikal,"Байкальская ул. 18, Бугульдейка",52.535374,106.0579,https://ostrovok.ru/hotel/russia/irkutsk/mid11254237/gostevoy_dom_isiger_baikal,
 Жигалово,lenatour,8752255,Отель  Ленатур,Lenatur Hotel,"улица Советская, д.26, Жигалово",54.812542,105.151405,https://ostrovok.ru/hotel/russia/irkutsk/mid8752255/lenatour,8
+Бугульдейка,gostevoy_dom_isiger_baikal,11254237,Гостевой дом ISIGER BAIKAL,Gostevoy Dom Isiger Baikal,"Байкальская ул. 18, Бугульдейка",52.535374,106.0579,https://ostrovok.ru/hotel/russia/irkutsk/mid11254237/gostevoy_dom_isiger_baikal,
 Ангарск,hotel_pushkin_2,6932873,Отель ПушкинЪ,Pushkin`Hotel,"улица Мира, д. 18, Ангарск",52.5455,103.89485,https://ostrovok.ru/hotel/russia/irkutsk/mid6932873/hotel_pushkin_2,23
 Шелехов,katantsa_hotel,13328659,Отель Катанца,Katantsa Hotel,"Центральный проспект, д.7, Шелехов",52.205254,104.07976,https://ostrovok.ru/hotel/russia/irkutsk/mid13328659/katantsa_hotel,19
 Иркутск,hotel_rodina_grand_hotel_spa_irkutsk_5,11200427,Отель RODINA Grand Hotel & SPA Irkutsk 5*,Hotel Rodina Grand Hotel & Spa Irkutsk 5*,"ул. Николая Гаврилова, стр. 2, Иркутск",52.290024,104.26961,https://ostrovok.ru/hotel/russia/irkutsk/mid11200427/hotel_rodina_grand_hotel_spa_irkutsk_5,79
@@ -158,12 +156,13 @@
 Утулик,hotel_shishki,13113638,Меблированные комнаты Шишки,Shishki,"п. Утулик, ул. Ленская, д.17, Утулик",51.54238,104.07462,https://ostrovok.ru/hotel/russia/irkutsk/mid13113638/hotel_shishki,
 Ушаковское,camping_yelochka_kempinghotel,13868693,Отель Елочка,Yelochka Hotel,"Иркутский р-он, 21 км, Ушаковское",52.176395,104.49215,https://ostrovok.ru/hotel/russia/irkutsk/mid13868693/camping_yelochka_kempinghotel,118
 Хужир,u_lukomorya_4,10009441,У Лукоморья,U Lukomorya Living Quarters,"посёлок Хужир,Песчаная улица, д.5, Хужир",53.18991,107.33197,https://ostrovok.ru/hotel/russia/irkutsk/mid10009441/u_lukomorya_4,
-Иркутск,hostel_katrin_2,11309585,Катрин,Katrin,"ул. Седова, 64, Иркутск",52.269577,104.299164,https://ostrovok.ru/hotel/russia/irkutsk/mid11309585/hostel_katrin_2,
 Братск,guest_house_vremena_goda,6511529,Времена Года,Vremena Goda,"Улица Подбельского 12, Братск",56.15242,101.614845,https://ostrovok.ru/hotel/russia/irkutsk/mid6511529/guest_house_vremena_goda,24
+Иркутск,hostel_katrin_2,11309585,Катрин,Katrin,"ул. Седова, 64, Иркутск",52.269577,104.299164,https://ostrovok.ru/hotel/russia/irkutsk/mid11309585/hostel_katrin_2,
 Листвянка,legend_of_baikal,7776712,Отель Легенда Байкала,Legenda Bajkala Hotel,"Улица Исток Ангары, д.11, Листвянка",51.87289,104.828636,https://ostrovok.ru/hotel/russia/irkutsk/mid7776712/legend_of_baikal,35
 Иркутск,riderside,8754956,Гостиница Riverside,Riverside Hotel,"улица Байкальская, д.234 В/7, Иркутск",52.25251,104.32453,https://ostrovok.ru/hotel/russia/irkutsk/mid8754956/riderside,8
 Хужир,apartments_viking_khaus,13097492,Викинг Хаус,Viking Hause Living Quarters,"Северная улица, 5а/1, Хужир",53.196445,107.35554,https://ostrovok.ru/hotel/russia/irkutsk/mid13097492/apartments_viking_khaus,
 Листвянка,bajkalskie_sezonyi,9992857,Отель Парк Байкальские сезоны,Park Baykalskie Sezony Hotel,"Иркутская Область, м.р-н Иркутский, г.п. Листвянское, п Ангарские Хутора, ул Прибрежная, зд. 5а, Листвянка",51.9078,104.81043,https://ostrovok.ru/hotel/russia/irkutsk/mid9992857/bajkalskie_sezonyi,22
+Мурино,tengis_park_hotel,11311730,Отель Тэнгис,Tengis Hotel,"посёлок Мурино, улица Лесная 4, Мурино",51.473064,104.408356,https://ostrovok.ru/hotel/russia/irkutsk/mid11311730/tengis_park_hotel,11
 Иркутск,royal_hotel_33,6362904,Отель Рояль,Royal Hotel,"улица Декабрьских событий, д. 31, Иркутск",52.28928,104.29745,https://ostrovok.ru/hotel/russia/irkutsk/mid6362904/royal_hotel_33,27
 Хужир,baykal_khan_hotel_olkhon,6848973,Отель Байкал-Хан Ольхон,Bajkal-Han Olhon Hotel,"улица Ворошилова, д. 18, Хужир",53.19855,107.351166,https://ostrovok.ru/hotel/russia/irkutsk/mid6848973/baykal_khan_hotel_olkhon,40
 Хужир,eko_baikalwood_hotel,8737003,Отель БайкалВуд,BaikalWood Hotel,"улица Светлая, д.5, Хужир",53.193813,107.3616,https://ostrovok.ru/hotel/russia/irkutsk/mid8737003/eko_baikalwood_hotel,44
